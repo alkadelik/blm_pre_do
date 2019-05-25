@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>settings</title>
+{% endblock %}
+
+{% block body %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Update</button>
+</form>
+<section class="fence">
+  <div id="title-block">
+    <h2>Settings</h2>
+  </div>
+  <div id="main">
+    <div class="gap">
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Password
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Password
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Pocket Money <span>(every two weeks | Thursday)</span>
+        <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+      </label>
+    </div>
+  </div>
+</section>
+{% endblock %}

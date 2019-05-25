@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Signup</title>
+{% endblock %}
+
+{% block body %}
+<div id="index">
+  <div class="identity">
+    <h1>Bare Necessities</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Sign Up</button>
+    </form>
+    <input type="text" name="" value="" placeholder="Email address">
+    <input type="password" name="" value="" placeholder="Password">
+    <p class="forgot">Forgot password?</p>
+    <button type="submit">Log In</button>
+    <p>Don't have an account?</p>
+  </div>
+</div>
+{% endblock %}

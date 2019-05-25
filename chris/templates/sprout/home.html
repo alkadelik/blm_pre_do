@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Home</title>
+{% endblock %}
+
+{% block body %}
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Submit</button>
+</form>
+<h2>{{ text }}</h2>
+<form class="" action="index.html" method="post">
+    <section v-show="step === 6" class="fence">
+      <div id="title-block">
+        <h2>Pocket Money</h2>
+      </div>
+      <div id="main">
+        <div class=""></div>
+        <div class="q-block">
+          <label class="bank">
+              <li>Created <span>01.01.2019</span></li>
+              <li>First disbursement <span>05.01.2019</span></li>
+              <li>Next disbursement <span>12.02.2019</span></li>
+              <li>Final disbursement <span>12.02.2019</span></li>
+              <li>Disbursement frequency <span>Weekly</span></li>
+              <li>Disbursement amount <span>&#8358; 20,000</span></li>
+              <li>Disbursed count<span>3 of 7</span></li>
+              <li>Disbursements left<span>4</span></li>
+              <li>Total number of disbursements<span>7</span></li>
+              <li>Linked bank account<span>0011223344 GTBank</span></li>
+              <li>Funded wiith<span>GTBank MasterCard 0124</span></li>
+              <li>Fund credentials<span>Adefirst Olafinal</span></li>
+              <li>Status<span>Ongoing</span></li>
+              <li>Total amount<span>&#8358; 100,000</span></li>
+          </label>
+        </div>
+      </div>
+    </section>
+    <section v-show="step === 5" class="fence">
+      <div id="title-block">
+        <h2>You are about to set aside $amount for $budget. Confirm the details and proceed</h2>
+      </div>
+      <progress-bar></progress-bar>
+      <div id="main">
+        <div class="gap">
+        </div>
+        <div class="q-block">
+          <label class="bank">
+            <p class="acc-name">Budget name:</p>
+            Pocket Money
+          </label>
+        </div>
+        <div class="q-block">
+          <label class="bank">
+            <p class="acc-name">Amount to set aside</p>
+            &#8358; 20,000
+          </label>
+        </div>
+        <div class="q-block">
+          <label class="bank">
+            <p class="acc-name">Disbursement</p>
+            Every two weeks
+          </label>
+        </div>
+        <div class="q-block">
+          <label class="bank">
+            <p class="acc-name">Start date</p>
+            July 06, 2019
+          </label>
+        </div>
+        <div class="q-block">
+          <label class="bank">
+            <p class="acc-name">Linked account</p>
+            GTBank 0011223344
+          </label>
+        </div>
+      </div>
+    </section>
+    <section v-show="step === 4" class="fence">
+      <div id="title-block">
+        <h2>Link a bank account to receive disbursements</h2>
+      </div>
+      <progress-bar></progress-bar>
+      <div id="main">
+        <div class="gap">
+        </div>
+        <div class="q-block">
+          <label>Select bank
+            <option value="">Bank</option>
+          </label>
+        </div>
+        <div class="q-block">
+          <label>Enter account number
+            <input type="" name="" value="">
+          </label>
+          <p class="validation">validation</p>
+        </div>
+      </div>
+    </section>
+    <section v-show="step === 3" class="fence">
+      <div id="title-block"></div>
+        <progress-bar></progress-bar>
+      <div id="main">
+        <div class="gap">
+        </div>
+        <div class="q-block">
+          <label>How do you want $budget disbursed to you?</label>
+          <label id="radio">In one lump sum
+            <input type="radio" name="disbursement" value="">
+            <span class="checkmark"></span>
+          </label>
+          <label id="radio">In multiple disbursements
+            <input type="radio" name="disbursement" value="">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div class="q-block">
+          <label for="">How frequently do you want $budget disbursed?
+            <input type="text" name="" value="" placeholder="">
+          </label>
+        </div>
+      </div>
+    </section>
+    <section v-show="step === 2" class="fence">
+      <div id="title-block"></div>
+      <progress-bar></progress-bar>
+      <div id="main">
+        <div class="gap">
+        </div>
+        <div class="q-block">
+          <label>How do you want <span class="highlight">{{budget}}</span> disbursed back to you?</label>
+          <label id="radio">In one lump sum
+            <input type="radio" name="disbursement" value="">
+            <span class="checkmark"></span>
+          </label>
+          <label id="radio">In multiple disbursements
+            <input type="radio" name="disbursement" value="">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+        <div class="q-block">
+          <label for="">What day do you want it disbursed?
+            <input class="input-date" type="date" name="" value="" placeholder="">
+          </label>
+        </div>
+      </div>
+    </section>
+    <section v-show="step === 1" class="fence">
+        <div id="title-block"></div>
+        <progress-bar></progress-bar>
+        <div id="main">
+          <div class="gap"></div>
+          <div class="q-block">
+            <label for="">Name this budget
+              <input class="capitalise" type="text" name="" value="" :maxlength="charmax" v-model="budget">
+              <div class="charcount" v-text="charcount()"></div>
+            </label>
+          </div>
+          <div class="q-block">
+            <label for="" class="curious-case">How much do you want to set aside for <span class="highlight">[[budget]]</span> now?
+              <input type="text" name="" value=""></label>
+          </div>
+        </div>
+    </section>
+    <div class="nav">
+      <button v-show="showprev" v-on:click.prevent="prev()" >Previous</button>
+      <button v-show="shownext" v-on:click.prevent="next()">Next</button>
+      <button v-show="showsubmit" v-on:click.prevent="submit()">Submit</button>
+    </div>
+</form>
+{% endblock %}

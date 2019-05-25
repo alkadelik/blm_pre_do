@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    {% block title %}
+    <title>Home</title>
+    {% endblock %}
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'chris/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="app">
+      {% block body %}
+      {% endblock %}
+      {% if user.is_authenticated %}
+      <transition name="fade">
+        <div v-if="menu" id="menu">
+          <div class="">
+            <!-- <button @click="menu = !menu">Close</button> -->
+            <button @click="menuAction()">Close</button>
+          </div>
+          <div class="">
+            <ul>
+              <li><a href="{% url "chris:settings" %}">Budgets</a></li>
+              <li><a href="{% url "chris:settings" %}">Verified cards</a></li>
+              <li><a href="{% url "chris:settings" %}">Linked accounts</a></li>
+              <li><a href="{% url "chris:settings" %}">Settings</a></li>
+              <li><a href="{% url "chris:logout" %}">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </transition>
+      {% block menu %}
+      <button @click="menuAction()">Menu</button>
+      {% endblock %}
+      {% else %}
+        <!-- <a href="{% url "chris:reset_password" %}">Reset password</a> -->
+      {% endif %}
+      <script src="{% static 'chris/app.js' %}"></script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Login</title>
+{% endblock %}
+
+{% block body %}
+<div id="index">
+  <div class="identity">
+    <h1>Bare Necessities</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Log In</button>
+    </form>
+    <input type="text" name="" value="" placeholder="Email address">
+    <input type="password" name="" value="" placeholder="Password">
+    <p class="forgot">
+      <a href="{% url 'chris:reset_password' %}">Forgot Password?</a>
+    </p>
+    <button type="submit">Log In</button>
+    <p><a href="{% url 'chris:register' %}">Don't have an account? Register</a></p>
+  </div>
+</div>
+{% endblock %}

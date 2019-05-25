@@ -1,0 +1,319 @@
+/* RESET STYLES */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+}
+input {
+  outline: none;
+}
+h2 {
+  color: #FFF;
+  font-size: 1.1em;
+  text-align: center;
+  width: 70%;
+  margin: 30px auto 0;
+}
+.step-container {
+  position: relative;
+  width: 360px;
+  height: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 0 20px;
+  background-color: #E1848C;
+  font-size: 0.9em;
+}
+.identity {
+  /* background-color: orange; */
+  width: 300px;
+  margin: 0 auto;
+  margin-top: 350px;
+}
+#index {
+  width: 360px;
+  margin: 0 auto;
+  padding: 20px 0;
+  background-color: #E1848C;
+  font-size: 0.9em;
+}
+#index h1 {
+  color: #FFF;
+  font-weight: 400;
+}
+#index input, .identity button {
+  display: block;
+  width: 280px;
+  margin: 0 auto 2px auto;
+  font-size: 1.2em;
+  padding: 10px;
+  border: none;
+}
+.identity button {
+  background-color: #893747;
+  width: 300px;
+  color: #FFF;
+}
+#index p {
+  color: #FFF;
+  font-size: 0.8em;
+}
+.forgot {
+  text-align: right;
+  margin: 10px 0 20px 0;
+}
+#app {
+  position: relative;
+  width: 360px;
+  margin: 0 auto;
+  /* padding: 0 20px; */
+  background-color: #E1848C;
+}
+.fence {
+  position: relative;
+  display: grid;
+  grid-template-rows: 70px auto auto;
+  grid-row-gap: 20px;
+  width: 100%;
+  font-size: 0.9em;
+}
+#title-block {
+  /* background-color: indianred; */
+}
+#progress {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr 1fr 1fr auto;
+  grid-column-gap: 10px;
+  height: 10px;
+  /* grid-template-columns: repeat(4, 1fr); */
+  /* grid-column-start: 20px; */
+  /* grid-template-columns: repeat(4, auto); */
+  /* grid-template-columns: 1fr 2fr 5fr 1fr; */
+}
+#main {
+  height: 500px;
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: auto;
+  /* justify-items: center; */
+  align-content: start;
+  justify-content: center;
+  grid-row-gap: 5px;
+  background-color: #893747;
+  /* background-color: #893747; */
+  border-radius: 10px 10px 0 0;
+}
+.step {
+  background-color: #893747;
+}
+.active {
+  background-color: #AA385E;
+}
+.q-block{
+  background-color: #E1848C;
+  width: 350px;
+  /* height: 75px; */
+  border-radius: 5px;
+  /* margin: 2px; */
+}
+.q-block label {
+  display: block;
+  width: 90%;
+  margin: 10px;
+  color: #FFF;
+}
+.q-block input[type="radio"] {
+  /* background-color: blue;
+  display: inline-block;
+  width: 0; */
+}
+.q-block input {
+  background-color: transparent;
+  color: #FFF;
+  width: 100%;
+  padding: 5px;
+  padding-left: 0;
+  margin-top: 10px;
+  border: none;
+  border-bottom: 2px solid #FFF;
+  /* background-color: pink; */
+  font-size: 1.2em;
+  font-weight: 400;
+}
+/* Styling radio button container */
+#radio {
+  width: 80%;
+  display: block;
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  /* font-size: 1.2em; */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none
+  user-select: none;
+}
+/* Hide default radio button */
+#radio input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+/* Custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 16px;
+  width: 16px;
+  background-color: #893747;
+  border-radius: 50%;
+}
+/* On mouse-over, add background color */
+#radio:hover input ~ .checkmark {
+  /* background-color: #FFE9EB; */
+}
+/* When radio button is checked, add background */
+#radio input:checked ~ .checkmark {
+  /* background-color: #2196F3; */
+}
+/* Create indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+/* Show indicator (dot/circle) when checked */
+#radio input:checked ~ .checkmark:after {
+  display: block;
+}
+/* Style the indicator (dot/circle) */
+#radio .checkmark:after {
+  top: 5px;
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+.level-radio {
+  display: grid;
+  grid-template-columns: 1fr 30px 1fr;
+}
+#level {
+  background-color: #893747;
+  height: 16px;
+  width: 30px;
+  border-radius: 8px;
+}
+#level .one {
+  float: left;
+  left: -1px;
+}
+#level .two {
+  left: 16px;
+}
+#level .checkmark:after {
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+}
+.validation {
+  position: relative;
+  top: -5px;
+  color: #FFF;
+  font-weight: 300;
+  font-size: 0.8em;
+  margin: 0 0 0 10px;
+}
+.acc-name {
+  font-size: 0.9em;
+  font-weight: 300;
+  margin-bottom: 5px;
+}
+.bank {
+  font-weight: 500;
+}
+.add-bank {
+  display: block;
+  height: 40px;
+  position: relative;
+  top: 10px;
+}
+body {
+  /* display: grid; */
+  /* grid-template-columns: 180px 320px; */
+}
+#menu {
+  position: absolute;
+  height: 40%;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  background: #AA385E;
+  color: #FFF;
+}
+#menu p {
+  padding-left: 20px;
+}
+.interval {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+}
+.highlight {
+  color: #AA385E;
+}
+.hide {
+  display: none;
+}
+.unhide {
+  display: inline-block;
+}
+.capitalise {
+ text-transform: capitalize;
+}
+.charcount {
+  background-color: pink;
+  text-align: center;
+  width: 35px;
+  padding: 10px 0;
+  position: relative;
+  bottom: 40px;
+  left: 285px;
+}
+.nav {
+  position: absolute;
+  width: 205px;
+  bottom: 50px;
+  left: 80px;
+  margin: 0 auto;
+}
+.nav button {
+  cursor: pointer;
+  width: 100px;
+  font-size: 1em;
+  border: none;
+  padding: 10px;
+  background-color: #E1848C;
+  color: #FFF;
+}
+input.input-date {
+  border: none;
+}
+.modal {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  width: 100%;
+  left: 0;
+  background: #000;
+  display: none;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}

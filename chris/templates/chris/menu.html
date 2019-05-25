@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Menu</title>
+{% endblock %}
+
+{% block body %}
+<div class="modal">
+  This is the modal
+</div>
+<div id="menu">
+  <p>Budgets</p>
+  <p>Verified cards</p>
+  <p>Linked accounts</p>
+  <p>Settings</p>
+  <p>Logout</p>
+</div>
+<section v-show="budgets" class="fence">
+  <div id="title-block">
+    <h2>All budgets</h2>
+    <div class="level-radio">
+      <div class=""></div>
+      <div id="level">
+        <label id="radio" class="one">
+          <input type="radio" name="disbursement" value="">
+          <span id="level-checkmark" class="checkmark"></span>
+        </label>
+        <label id="radio" class="two">
+          <input type="radio" name="disbursement" value="">
+          <span id="level-checkmark" class="checkmark"></span>
+        </label>
+      </div>
+      <div class=""></div>
+    </div>
+  </div>
+  <progress-bar></progress-bar>
+  <div id="main">
+    <div class="gap">
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Plumbing <span>(Ended December 24, 2018)</span>
+        <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Transport <span>(Ended January 02, 2019)</span>
+        <p class="acc-name">&#8358; 1,000 | 20 of 20</p>
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Pocket Money <span>(every two weeks | Thursday)</span>
+        <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Transport <span>(daily)</span>
+        <p class="acc-name">&#8358; 1,000 | 13 of 20</p>
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        Internet <span>(July 19, 2019)</span>
+        <p class="acc-name">&#8358; 19,800</p>
+      </label>
+    </div>
+  </div>
+</section>
+<section v-show="linkedBanks" class="fence">
+  <div id="title-block">
+    <h2>What bank account do you want to receive disbursement?</h2>
+  </div>
+  <progress-bar></progress-bar>
+  <div id="main">
+    <div class="gap">
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Adefirst Olafinal</p>
+        0011223344 GTBank
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Adesecond Olathird</p>
+        0011223344 Heritage Bank
+      </label>
+    </div>
+    <div class="q-block">
+      <label>
+        <span class="add-bank">+ Add new account</span>
+      </label>
+    </div>
+    <div class="q-block">
+      <label>
+        <span class="add-bank">+ Bill</span>
+      </label>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+This part is outside the block
+  <button>Menu</button>
+  <button>modal</button>
+  <section v-show="menu === 'linkBank'" class="fence">
+    <div id="title-block">
+      <h2>Link a bank account to receive disbursements</h2>
+    </div>
+    <progress-bar></progress-bar>
+    <div id="main">
+      <div class="gap">
+      </div>
+      <div class="q-block">
+        <label>Select bank
+          <option value="">Bank</option>
+        </label>
+      </div>
+      <div class="q-block">
+        <label>Enter account number
+          <input type="" name="" value="">
+        </label>
+        <p class="validation">validation</p>
+      </div>
+    </div>
+  </section>
+  <section v-show="menu === 'linkedBanks'" class="fence">
+    <div id="title-block">
+      <h2>What bank account do you want to receive disbursement?</h2>
+    </div>
+    <progress-bar></progress-bar>
+    <div id="main">
+      <div class="gap">
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          <p class="acc-name">Adefirst Olafinal</p>
+          0011223344 GTBank
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          <p class="acc-name">Adesecond Olathird</p>
+          0011223344 Heritage Bank
+        </label>
+      </div>
+      <div class="q-block">
+        <label>
+          <span class="add-bank">+ Add new account</span>
+        </label>
+      </div>
+      <div class="q-block">
+        <label>
+          <span class="add-bank">+ Bill</span>
+        </label>
+      </div>
+    </div>
+  </section>
+  <section v-show="menu === 'verifiedCards'" class="fence">
+    <div id="title-block"></div>
+    <progress-bar></progress-bar>
+    <div id="main">
+      <div class="gap">
+      </div>
+      <div class="q-block">
+      </div>
+      <div class="q-block">
+      </div>
+    </div>
+  </section>
+  <section v-show="menu === 'allBudgets'" class="fence">
+    <div id="title-block">
+      <h2>All budgets</h2>
+      <div class="level-radio">
+        <div class=""></div>
+        <div id="level">
+          <label id="radio" class="one">
+            <input type="radio" name="disbursement" value="">
+            <span id="level-checkmark" class="checkmark"></span>
+          </label>
+          <label id="radio" class="two">
+            <input type="radio" name="disbursement" value="">
+            <span id="level-checkmark" class="checkmark"></span>
+          </label>
+        </div>
+        <div class=""></div>
+      </div>
+    </div>
+    <progress-bar></progress-bar>
+    <div id="main">
+      <div class="gap">
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Plumbing <span>(Ended December 24, 2018)</span>
+          <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Transport <span>(Ended January 02, 2019)</span>
+          <p class="acc-name">&#8358; 1,000 | 20 of 20</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Pocket Money <span>(every two weeks | Thursday)</span>
+          <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Transport <span>(daily)</span>
+          <p class="acc-name">&#8358; 1,000 | 13 of 20</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Internet <span>(July 19, 2019)</span>
+          <p class="acc-name">&#8358; 19,800</p>
+        </label>
+      </div>
+    </div>
+  </section>
+  <section v-show="menu === 'activeBudgets'" class="fence">
+    <div id="title-block">
+      <h2>Active budgets</h2>
+      <div class="level-radio">
+        <div class=""></div>
+        <div id="level">
+          <label id="radio" class="one">
+            <input type="radio" name="disbursement" value="">
+            <span id="level-checkmark" class="checkmark"></span>
+          </label>
+          <label id="radio" class="two">
+            <input type="radio" name="disbursement" value="">
+            <span id="level-checkmark" class="checkmark"></span>
+          </label>
+        </div>
+        <div class=""></div>
+      </div>
+    </div>
+    <progress-bar></progress-bar>
+    <div id="main">
+      <div class="gap">
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Pocket Money <span>(every two weeks | Thursday)</span>
+          <p class="acc-name">&#8358; 20,000 | 3 of 5</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Transport <span>(daily)</span>
+          <p class="acc-name">&#8358; 1,000 | 13 of 20</p>
+        </label>
+      </div>
+      <div class="q-block">
+        <label class="bank">
+          Internet <span>(July 19, 2019)</span>
+          <p class="acc-name">&#8358; 19,800</p>
+        </label>
+      </div>
+    </div>
+  </section>
