@@ -100,7 +100,6 @@ class Recipient(TemplateView):
             # on where they came from
 
 def pay(request):
-    # prevent pay from being called on already funded budget
     try:
         current_budget_id = request.session["budget_id"]
         user = request.user

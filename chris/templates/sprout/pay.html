@@ -6,10 +6,6 @@
 
 {% block body %}
 {{ response }}
-<!-- <form >
-  <script src="https://js.paystack.co/v1/inline.js"></script>
-  <button type="button" v-on:click="payWithPaystack()"> Pay </button>
-</form> -->
 <form>
   <script src="https://js.paystack.co/v1/inline.js"></script>
   <button type="button" onclick="payWithPaystack()"> Pay </button>
@@ -52,4 +48,45 @@
     handler.openIframe();
   }
 </script>
+
+<section class="fence">
+  <div id="title-block">
+    <h2>You are about to set aside $amount for $budget. Confirm the details and proceed</h2>
+  </div>
+  <progress-bar></progress-bar>
+  <div id="main">
+    <div class="gap">
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Budget name:</p>
+        Pocket Money
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Amount to set aside</p>
+        &#8358; 20,000
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Disbursement</p>
+        Every two weeks
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Start date</p>
+        July 06, 2019
+      </label>
+    </div>
+    <div class="q-block">
+      <label class="bank">
+        <p class="acc-name">Linked account</p>
+        GTBank 0011223344
+      </label>
+    </div>
+  </div>
+</section>
 {% endblock %}
