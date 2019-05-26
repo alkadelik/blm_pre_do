@@ -9,8 +9,9 @@ from datetime import datetime, timedelta
 
 import requests # requests was installed by pip
 # import json
+from chris.models import Budget, Bank
 
-from django.views.decorators.csrf import csrf_exempt
+# from django.views.decorators.csrf import csrf_exempt
 
 
 class HomeView(TemplateView):
@@ -64,13 +65,6 @@ class HomeView(TemplateView):
 class Recipient(TemplateView):
     template_name = "sprout/recipient.html"
 
-    try:
-        current_budget_id = request.session["budget_id"]
-        print current_budget_id
-    except:
-        print "No id"
-        # return redirect(reverse("sprout:home")) # or redirect to budget list
-
     def get(self, request):
         form = LinkBankForm()
         context = {
@@ -86,10 +80,24 @@ class Recipient(TemplateView):
             new_recipient.created = timezone.now()
             new_recipient.save()
 
-            request.session["current_recipient"] = new_recipient.id
-            # Get the current budget
-            # Update the recipient of the current budget
-            return redirect("sprout:pay") # what is this about?
+            try:
+                current_budget_id = request.session["budget_id"]
+                budget = Budget.objects.get(id=current_budget_id)
+                if budget.recipient_id is None:
+                    budget.recipient_id = new_recipient.id
+                    budget.save()
+                    # clear current_budget_id
+                    # del request.session["budget_id"]
+                    return redirect("sprout:pay")
+            except:
+                # This exception means there is no budget_id set
+                print "You have successfully added a recipient..."
+            return redirect("sprout:home")
+            # This redirect means there is a budget_id set
+            # but the budget already has a recipient
+            # if the budget hasn't been funded, user can fund
+            # or return recipients list or budget list depending
+            # on where they came from
 
 def pay(request):
     # prevent pay from being called on already funded budget

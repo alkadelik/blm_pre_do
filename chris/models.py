@@ -42,7 +42,7 @@ class Budget(models.Model):
     updated = models.DateTimeField(null=False)
 
 class Bank(models.Model):
-    bank = models.CharField(max_length=5, default='')
+    bank = models.CharField(max_length=10, default='')
     acc_no = models.IntegerField(blank=True)
     created = models.DateTimeField(null=False)
 
