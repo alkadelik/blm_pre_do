@@ -53,7 +53,7 @@ class HomeView(TemplateView):
             # Updated on "budget execution view":
             # pay_count, next_date,
 
-            return redirect("sprout:receipient")
+            return redirect("sprout:recipient")
 
             # Below was requried if form was submitting to itself
             # context = {
@@ -61,15 +61,15 @@ class HomeView(TemplateView):
             # }
             # return render(request, self.template_name, context)
 
-class Receipient(TemplateView):
-    template_name = "sprout/receipient.html"
+class Recipient(TemplateView):
+    template_name = "sprout/recipient.html"
 
-    # try:
-    #     current_budget_id = request.session["budget_id"]
-    #     print current_budget_id
-    # except:
-    #     print "No id"
-    #     # return redirect(reverse("sprout:home")) # or redirect to budget list
+    try:
+        current_budget_id = request.session["budget_id"]
+        print current_budget_id
+    except:
+        print "No id"
+        # return redirect(reverse("sprout:home")) # or redirect to budget list
 
     def get(self, request):
         form = LinkBankForm()
@@ -81,14 +81,14 @@ class Receipient(TemplateView):
     def post(self, request):
         form = LinkBankForm(request.POST)
         if form.is_valid():
-            new_receipient = form.save(commit=False)
-            # new_receipient.budget = current_budget_id
-            new_receipient.created = timezone.now()
-            new_receipient.save()
+            new_recipient = form.save(commit=False)
+            # new_recipient.budget = current_budget_id
+            new_recipient.created = timezone.now()
+            new_recipient.save()
 
-            # Get the id of the current receipient (bank)
+            request.session["current_recipient"] = new_recipient.id
             # Get the current budget
-            # Update the receipient of the current budget
+            # Update the recipient of the current budget
             return redirect("sprout:pay") # what is this about?
 
 def pay(request):

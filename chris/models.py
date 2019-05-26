@@ -37,7 +37,7 @@ class Budget(models.Model):
     budget_status = models.IntegerField(default=0) # budget_entered, paid, active, ended, paused
     pay_ref = models.CharField(max_length=30, null=True) # Payment reference for funding a budget
     pay_status = models.CharField(max_length=10, null=True) # Status of payment attempt
-    receipient = models.ForeignKey("Bank", blank=True, null=True)
+    recipient = models.ForeignKey("Bank", blank=True, null=True)
     created = models.DateTimeField(null=False)
     updated = models.DateTimeField(null=False)
 
