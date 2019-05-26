@@ -101,18 +101,22 @@ class Recipient(TemplateView):
 
 def pay(request):
     # prevent pay from being called on already funded budget
-    user = request.user
-    pk = "pk_test_9b841d2e67007aeca304a57442891a06ad312ece"
-    email = "user@sprout.com"
-    amount = 30000 # price is always in kobo
-    currency = "NGN"
+    try:
+        current_budget_id = request.session["budget_id"]
+        user = request.user
+        pk = "pk_test_9b841d2e67007aeca304a57442891a06ad312ece"
+        email = "user@sprout.com"
+        amount = 30000 # price is always in kobo
+        currency = "NGN"
 
-    context = {
-        "pk": pk,
-        "email": email,
-        "amount": amount,
-        "currency": currency,
-    }
+        context = {
+            "pk": pk,
+            "email": email,
+            "amount": amount,
+            "currency": currency,
+        }
+    except:
+        return redirect("sprout:home") # where else can this redirect?
     return render(request, "sprout/pay.html", context)
 
 # class PaymentVerification(TemplateView):
@@ -129,8 +133,6 @@ def payment_verification(request):
     }
 
     # try:
-    #     current_budget_id = request.session["budget_id"]
-    #     budget = Budget.objects.get(id=current_budget_id)
         # all conditions set e.g. price, user email, etc
     if request.method == "POST":
         pay_ref = request.POST["pay_ref"]
@@ -140,10 +142,14 @@ def payment_verification(request):
 
         pay_status = response["status"]
         if pay_status == True:
-            # save pay_ref to db
-            # update pay_status = "pay_status"
-            # update budget_status in db to 1
-            pass
+            current_budget_id = request.session["budget_id"]
+            budget = Budget.objects.get(id=current_budget_id)
+            budget.pay_status = response["data"]["status"]
+            budget.pay_ref = response["data"]["reference"]
+            budget.amount_funded = response["data"]["amount"]
+            budget.budget_status = 1
+            budget.save()
+            del request.session["budget_id"]
         else:
             # save pay_ref to db
             # update pay_status = "pay_status"
@@ -152,3 +158,5 @@ def payment_verification(request):
         print response["status"]
 
         return redirect("/sprout/") # Not sure why I have to use this. Doesn't seem to do anything
+
+# Have a history of budgets being funded (similar to TuGs payment history)
