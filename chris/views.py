@@ -11,8 +11,11 @@ from django.urls import reverse
 # import json
 
 def login_redirect(request):
-    return reverse("login")
+    # first two optoins don't work on their own. Should you always
+    # use redirect with render?
+    # return reverse("login")
     # return reverse("chris:login")
+    return redirect(reverse("chris:login"))
 
 def index(request):
     return reverse("login")

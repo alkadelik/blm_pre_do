@@ -1,5 +1,5 @@
 from django import forms
-from chris.models import Budget
+from chris.models import Budget, Bank
 from django.forms import DateTimeInput # What is this for?
 # from django.utils import timezone
 # import datetime
@@ -29,3 +29,12 @@ class BudgetSetupForm(forms.ModelForm):
         widgets = {
             "first_date": DateInput()
         }
+
+class LinkBankForm(forms.ModelForm):
+
+    class Meta:
+        model = Bank
+        fields = [
+            "bank",
+            "acc_no",
+        ]

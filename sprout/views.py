@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from sprout.forms import BudgetSetupForm
+from sprout.forms import BudgetSetupForm, LinkBankForm
 from django.utils import timezone
 from datetime import datetime, timedelta
 
@@ -48,22 +48,61 @@ class HomeView(TemplateView):
             new_budget.final_date = first_date + timedelta(days=(interval*(pay_qty-1)))
             new_budget.save()
 
+            request.session["budget_id"] = new_budget.id
+
             # Updated on "budget execution view":
             # pay_count, next_date,
 
-            return redirect("sprout:home") # what is this about?
-            context = {
-                "form": form,
-            }
-            return render(request, self.template_name, context)
+            return redirect("sprout:receipient")
+
+            # Below was requried if form was submitting to itself
+            # context = {
+            #     "form": form,
+            # }
+            # return render(request, self.template_name, context)
+
+class Receipient(TemplateView):
+    template_name = "sprout/receipient.html"
+
+    # try:
+    #     current_budget_id = request.session["budget_id"]
+    #     print current_budget_id
+    # except:
+    #     print "No id"
+    #     # return redirect(reverse("sprout:home")) # or redirect to budget list
+
+    def get(self, request):
+        form = LinkBankForm()
+        context = {
+            "form": form,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        form = LinkBankForm(request.POST)
+        if form.is_valid():
+            new_receipient = form.save(commit=False)
+            # new_receipient.budget = current_budget_id
+            new_receipient.created = timezone.now()
+            new_receipient.save()
+
+            # Get the id of the current receipient (bank)
+            # Get the current budget
+            # Update the receipient of the current budget
+            return redirect("sprout:pay") # what is this about?
 
 def pay(request):
     # prevent pay from being called on already funded budget
+    user = request.user
+
     return render(request, "sprout/pay.html")
 
 # class PaymentVerification(TemplateView):
 #     template_name = "sprout/"
 def payment_verification(request):
+    user = request.user
+    # budget = Budget.objects.get(id=)
+
     api = "https://api.paystack.co/transaction/verify/"
     headers = {
         'Authorization': "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
