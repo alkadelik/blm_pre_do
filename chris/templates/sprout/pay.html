@@ -16,14 +16,13 @@
 </form>
 
 <script>
-  // var internalTransId = "bsfuyvuysafyuvfy"
   function payWithPaystack(){
     var handler = PaystackPop.setup({
-      key: 'pk_test_9b841d2e67007aeca304a57442891a06ad312ece',
+      key: "{{ pk }}",
       // key: 'pk_live_163e7cf486ffc7c6458472600beea80901168692',
-      email: 'customer@email.com',
-      amount: 10000,
-      currency: "NGN",
+      email: "{{ email }}",
+      amount: {{ amount }},
+      currency: "{{ currency }}",
       // ref: ''+Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
       metadata: {
          custom_fields: [

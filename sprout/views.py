@@ -102,15 +102,22 @@ class Recipient(TemplateView):
 def pay(request):
     # prevent pay from being called on already funded budget
     user = request.user
+    pk = "pk_test_9b841d2e67007aeca304a57442891a06ad312ece"
+    email = "user@sprout.com"
+    amount = 30000 # price is always in kobo
+    currency = "NGN"
 
-    return render(request, "sprout/pay.html")
+    context = {
+        "pk": pk,
+        "email": email,
+        "amount": amount,
+        "currency": currency,
+    }
+    return render(request, "sprout/pay.html", context)
 
 # class PaymentVerification(TemplateView):
 #     template_name = "sprout/"
 def payment_verification(request):
-    user = request.user
-    # budget = Budget.objects.get(id=)
-
     api = "https://api.paystack.co/transaction/verify/"
     headers = {
         'Authorization': "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
@@ -121,6 +128,10 @@ def payment_verification(request):
         'cache-control': "no-cache",
     }
 
+    # try:
+    #     current_budget_id = request.session["budget_id"]
+    #     budget = Budget.objects.get(id=current_budget_id)
+        # all conditions set e.g. price, user email, etc
     if request.method == "POST":
         pay_ref = request.POST["pay_ref"]
 
