@@ -131,8 +131,6 @@ def payment_verification(request):
         'cache-control': "no-cache",
     }
 
-    # try:
-        # all conditions set e.g. price, user email, etc
     if request.method == "POST":
         pay_ref = request.POST["pay_ref"]
 
@@ -144,14 +142,21 @@ def payment_verification(request):
             current_budget_id = request.session["budget_id"]
             budget = Budget.objects.get(id=current_budget_id)
             budget.pay_status = response["data"]["status"]
+
+# Actually confirm that status is success before crediting
+# if(budget.pay_status == "success")
+#     ret = {status:True};
+# else
+#     ret = {status:False}
+
             budget.pay_ref = response["data"]["reference"]
             budget.amount_funded = response["data"]["amount"]
             budget.budget_status = 1
             budget.save()
             del request.session["budget_id"]
         else:
-            # save pay_ref to db
-            # update pay_status = "pay_status"
+            # save pay_ref to db i.e. failed pay ref
+            # update pay_status = "pay_status" or failed
             # Leave budget_status as is (should be 0)
             pass
         print response["status"]
