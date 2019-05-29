@@ -18,7 +18,10 @@
       email: "{{ email }}",
       amount: {{ amount }},
       currency: "{{ currency }}",
-      // ref: ''+Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+      // ref: ''+Math.floor((Math.random() * 1000000000) + 1),
+      // generates a pseudo-unique reference. Please replace with a
+      // reference you generated. Or remove the line entirely so our API
+      // will generate one for you
       metadata: {
          custom_fields: [
             {
@@ -37,7 +40,22 @@
             "csrfmiddlewaretoken": "{{csrf_token}}"
           },
           success: function(response){
-            window.location.href = "/sprout/";
+            // window.location.href = "/sprout/"
+
+          // Doesn't "success" by default, mean response.status is true?
+          // Thus, why the need for the if statement below?
+          // Whereas the "onClose" means that success is False
+          // Or that the user closed the window
+          // Is it possible that Success is true but the user closes
+          // The window before the callback completes?
+          // What happens then? Webhook?
+            if (response.status) {
+              window.location.href = "/sprout/?ret=1";
+            }
+            // PS. It redirects here for successful transaction
+            else {
+              window.location.href = "/sprout/?ret=0";
+            }
           },
         });
       },
@@ -51,7 +69,8 @@
 
 <section class="fence">
   <div id="title-block">
-    <h2>You are about to set aside $amount for $budget. Confirm the details and proceed</h2>
+    <h2>You are about to set aside $amount for $budget.
+      Confirm the details and proceed</h2>
   </div>
   <progress-bar></progress-bar>
   <div id="main">

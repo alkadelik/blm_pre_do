@@ -43,9 +43,11 @@ class Budget(models.Model):
     updated = models.DateTimeField(null=False)
 
 class Bank(models.Model):
-    bank = models.CharField(max_length=10, default='')
+    name = models.CharField(max_length=128, default="")
+    bank = models.CharField(max_length=10, default="")
     acc_no = models.IntegerField(blank=True)
     created = models.DateTimeField(null=False)
+    user = models.ForeignKey(User)
 
 class Token(models.Model):
     token = models.IntegerField(default=0)

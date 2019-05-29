@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from sprout.forms import BudgetSetupForm, LinkBankForm
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.urls import reverse
 
 import requests # requests was installed by pip
 # import json
@@ -54,7 +55,7 @@ class HomeView(TemplateView):
             # Updated on "budget execution view":
             # pay_count, next_date,
 
-            return redirect("sprout:recipient")
+            return redirect("sprout:add_recipient")
 
             # Below was requried if form was submitting to itself
             # context = {
@@ -62,8 +63,8 @@ class HomeView(TemplateView):
             # }
             # return render(request, self.template_name, context)
 
-class Recipient(TemplateView):
-    template_name = "sprout/recipient.html"
+class NewRecipient(TemplateView):
+    template_name = "sprout/new_recipient.html"
 
     def get(self, request):
         form = LinkBankForm()
@@ -73,9 +74,11 @@ class Recipient(TemplateView):
         return render(request, self.template_name, context)
 
     def post(self, request):
+        user_id = request.user.id
         form = LinkBankForm(request.POST)
         if form.is_valid():
             new_recipient = form.save(commit=False)
+            new_recipient.user_id = user_id
             # new_recipient.budget = current_budget_id
             new_recipient.created = timezone.now()
             new_recipient.save()
@@ -98,6 +101,37 @@ class Recipient(TemplateView):
             # if the budget hasn't been funded, user can fund
             # or return recipients list or budget list depending
             # on where they came from
+        else:
+            # "What to do if form is not valid?"
+            pass
+
+class LinkRecipient(TemplateView):
+    template_name = "sprout/link_recipient.html"
+
+    def get(self, request):
+        user_id = request.user.id
+        banks = Bank.objects.filter(user_id=user_id)
+
+        context = {
+            "banks": banks,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        if form.is_valid():
+            recipient_id = form.cleaned_data["value"]
+            try:
+                budget_id = request.session["budget_id"]
+                budget = Budget.objects.get(id=budget_id)
+                budget.recipient_id = recipient_id
+                budget.save()
+                return redirect("sprout:pay")
+            except:
+                print "There is no budget to link recipient to"
+            return redirect("sprout:home")
+        else:
+            # waht to do if form is not valid
+            pass
 
 def pay(request):
     try:
@@ -142,25 +176,44 @@ def payment_verification(request):
             current_budget_id = request.session["budget_id"]
             budget = Budget.objects.get(id=current_budget_id)
             budget.pay_status = response["data"]["status"]
+            print budget.pay_status
 
-# Actually confirm that status is success before crediting
-# if(budget.pay_status == "success")
-#     ret = {status:True};
-# else
-#     ret = {status:False}
+            if budget.pay_status == "success":
+        # if:
+        #   ret = {status:True};
+        # else:
+        #   ret = {status:False}
+                budget.pay_ref = response["data"]["reference"]
+                budget.amount_funded = response["data"]["amount"]
+                budget.budget_status = 1
+                budget.save()
+                del request.session["budget_id"]
+            else:
+                budget.pay_ref = response["data"]["reference"]
 
-            budget.pay_ref = response["data"]["reference"]
-            budget.amount_funded = response["data"]["amount"]
-            budget.budget_status = 1
-            budget.save()
-            del request.session["budget_id"]
-        else:
-            # save pay_ref to db i.e. failed pay ref
-            # update pay_status = "pay_status" or failed
-            # Leave budget_status as is (should be 0)
-            pass
-        print response["status"]
-
-        return redirect("/sprout/") # Not sure why I have to use this. Doesn't seem to do anything
+        return redirect("/sprout/")
+        # Not sure why I have to use this. Doesn't seem to do anything
 
 # Have a history of budgets being funded (similar to TuGs payment history)
+
+def transfer(request):
+    api = "https://api.paystack.co/transferrecipient"
+    # Do all these headers apply for transfer?
+    headers = {
+        'Authorization': "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        'type': "nuban",
+        'name': "Zombie",
+        'description': "Zombier",
+        'account_number': "0113376246",
+        'bank_code': "044",
+        "currency": "NGN",
+        # "metadata": {
+        #     "job": "Flesh Eater",
+        # }
+    }
+
+    url = api
+    response = requests.request("GET", url, headers=headers).json()
+
+    transfer_status = response["status"]
+    return redirect(reverse("sprout:transfer"))

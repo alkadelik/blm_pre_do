@@ -5,9 +5,12 @@
 {% endblock %}
 
 {% block body %}
+<h2>Existing banks</h2>
 <form method="post">
   {% csrf_token %}
-  {{ form.as_p }}
+  {% for bank in banks %}
+  <input type="radio" name="bank" value="{{ bank.id }}">{{ bank.name }} | {{ bank.acc_no }} | {{ bank.bank }} <br>
+  {% endfor %}
   <button type="submit">Submit</button>
 </form>
 <form class="" action="index.html" method="post">
