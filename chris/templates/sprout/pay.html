@@ -32,6 +32,7 @@
          ]
       },
       callback: function(response){
+        console.log(response)
         $.ajax({
           type: "POST",
           url: "/sprout/payment_verification/",
@@ -49,13 +50,6 @@
           // Is it possible that Success is true but the user closes
           // The window before the callback completes?
           // What happens then? Webhook?
-            if (response.status) {
-              window.location.href = "/sprout/?ret=1";
-            }
-            // PS. It redirects here for successful transaction
-            else {
-              window.location.href = "/sprout/?ret=0";
-            }
           },
         });
       },

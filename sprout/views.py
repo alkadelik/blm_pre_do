@@ -7,10 +7,9 @@ from sprout.forms import BudgetSetupForm, LinkBankForm
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.urls import reverse
+from chris.models import Budget, Bank
 
 import requests # requests was installed by pip
-# import json
-from chris.models import Budget, Bank
 
 # from django.views.decorators.csrf import csrf_exempt
 
@@ -55,7 +54,7 @@ class HomeView(TemplateView):
             # Updated on "budget execution view":
             # pay_count, next_date,
 
-            return redirect("sprout:add_recipient")
+            return redirect("sprout:list_recipients")
 
             # Below was requried if form was submitting to itself
             # context = {
@@ -131,6 +130,7 @@ def link_recipient(request):
         return redirect("sprout:home")
 
 def pay(request):
+    request.session["budget_id"] = 22
     try:
         current_budget_id = request.session["budget_id"]
         user = request.user
@@ -155,11 +155,6 @@ def payment_verification(request):
     api = "https://api.paystack.co/transaction/verify/"
     headers = {
         'Authorization': "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
-        'Accept': "*/*",
-        'Cache-Control': "no-cache",
-        'Host': "api.paystack.co",
-        'Connection': "keep-alive",
-        'cache-control': "no-cache",
     }
 
     if request.method == "POST":
@@ -176,16 +171,13 @@ def payment_verification(request):
             print budget.pay_status
 
             if budget.pay_status == "success":
-        # if:
-        #   ret = {status:True};
-        # else:
-        #   ret = {status:False}
                 budget.pay_ref = response["data"]["reference"]
                 budget.amount_funded = response["data"]["amount"]
                 budget.budget_status = 1
                 budget.save()
                 del request.session["budget_id"]
             else:
+                # Wait for webhook
                 budget.pay_ref = response["data"]["reference"]
 
         return redirect("/sprout/")
@@ -193,24 +185,43 @@ def payment_verification(request):
 
 # Have a history of budgets being funded (similar to TuGs payment history)
 
-def transfer(request):
-    api = "https://api.paystack.co/transferrecipient"
-    # Do all these headers apply for transfer?
+def transfer_recipient(request):
+    url = "https://api.paystack.co/transferrecipient"
+
     headers = {
-        'Authorization': "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+    }
+    # This is updating my live user
+    data = {
         'type': "nuban",
-        'name': "Zombie",
+        'name': "Blessing",
         'description': "Zombier",
         'account_number': "0113376246",
-        'bank_code': "044",
+        'bank_code': "058",
         "currency": "NGN",
-        # "metadata": {
-        #     "job": "Flesh Eater",
-        # }
+        "metadata": {
+            "job": "Flesh Eater",
+        }
     }
+    response = requests.post(url, json=data, headers=headers).json()
+    print response
+    return redirect(reverse("sprout:home"))
 
-    url = api
-    response = requests.request("GET", url, headers=headers).json()
+def transfer(request):
+    url = "https://api.paystack.co/transfer"
 
-    transfer_status = response["status"]
-    return redirect(reverse("sprout:transfer"))
+    headers = {
+        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+    }
+    # This is updating my live user
+    data = {
+        'source': "balance",
+        'reason': "Testing",
+        'amount': "5000",
+        'recipient': "RCP_ajk0i1kprkw4077",
+    }
+    response = requests.post(url, json=data, headers=headers).json()
+    print response
+    return redirect(reverse("sprout:home"))
