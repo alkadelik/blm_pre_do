@@ -105,8 +105,8 @@ class NewRecipient(TemplateView):
             # "What to do if form is not valid?"
             pass
 
-class LinkRecipient(TemplateView):
-    template_name = "sprout/link_recipient.html"
+class ListRecipients(TemplateView):
+    template_name = "sprout/list_recipients.html"
 
     def get(self, request):
         user_id = request.user.id
@@ -117,21 +117,18 @@ class LinkRecipient(TemplateView):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request):
-        if form.is_valid():
-            recipient_id = form.cleaned_data["value"]
-            try:
-                budget_id = request.session["budget_id"]
-                budget = Budget.objects.get(id=budget_id)
-                budget.recipient_id = recipient_id
-                budget.save()
-                return redirect("sprout:pay")
-            except:
-                print "There is no budget to link recipient to"
-            return redirect("sprout:home")
-        else:
-            # waht to do if form is not valid
-            pass
+def link_recipient(request):
+    if request.method == "POST":
+        recipient_id = request.POST["recipient_id"]
+        try:
+            budget_id = request.session["budget_id"]
+            budget = Budget.objects.get(id=budget_id)
+            budget.recipient_id = recipient_id
+            budget.save()
+            return redirect("sprout:pay")
+        except:
+            print "There is no budget to link recipient to"
+        return redirect("sprout:home")
 
 def pay(request):
     try:

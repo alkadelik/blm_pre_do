@@ -6,13 +6,41 @@
 
 {% block body %}
 <h2>Existing banks</h2>
+<!-- <form action="/sprout/link_recipient/" method="post"> -->
 <form method="post">
   {% csrf_token %}
   {% for bank in banks %}
   <input type="radio" name="bank" value="{{ bank.id }}">{{ bank.name }} | {{ bank.acc_no }} | {{ bank.bank }} <br>
   {% endfor %}
-  <button type="submit">Submit</button>
+  <button type="button" onclick="link_recipient()"> Link Recipient </button>
 </form>
+<script>
+  function link_recipient(){
+    var recipient = document.getElementsByName("bank");
+    for (var i=0, length = recipient.length; i<length; i++)
+    {
+      if (recipient[i].checked)
+      {
+        $.ajax({
+          type: "POST",
+          url: "/sprout/link_recipient/",
+          data: {
+            "recipient_id": recipient[i].value,
+            "csrfmiddlewaretoken": "{{csrf_token}}"
+          },
+          success: function(response){
+            window.location.href = "/sprout/pay";
+          },
+        });
+        break;
+      }
+    }
+  }
+</script>
+
+
+
+
 <form class="" action="index.html" method="post">
     <section v-show="step === 5" class="fence">
       <div id="title-block">
