@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from sprout.forms import BudgetSetupForm, LinkBankForm
+from sprout.forms import BudgetSetupForm, LinkBankForm, NewRecipientForm
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.urls import reverse
@@ -62,47 +62,96 @@ class HomeView(TemplateView):
             # }
             # return render(request, self.template_name, context)
 
+def NewRecipient(request):
+    form = NewRecipientForm(request.POST or None)
+    if form.is_valid():
+        bank = form.cleaned_data["bank"]
+        acc_no = form.cleaned_data["acc_no"]
+    context = {
+        "form": form,
+    }
+    return render(request, "sprout/new_recipient.html", context)
+    # return render(request, "sprout:new_recipient", context)
+
+#
+# class NewRecipient(TemplateView):
+#     template_name = "sprout/new_recipient.html"
+#
+#     def get(self, request):
+#         form = LinkBankForm()
+#         context = {
+#             "form": form,
+#         }
+#         return render(request, self.template_name, context)
+#
+#     def post(self, request):
+#         user_id = request.user.id
+#         form = LinkBankForm(request.POST)
+#         if form.is_valid():
+#             new_recipient = form.save(commit=False)
+#             new_recipient.user_id = user_id
+#             # new_recipient.budget = current_budget_id
+#             new_recipient.created = timezone.now()
+#             new_recipient.save()
+#
+#             try:
+#                 current_budget_id = request.session["budget_id"]
+#                 budget = Budget.objects.get(id=current_budget_id)
+#                 if budget.recipient_id is None:
+#                     budget.recipient_id = new_recipient.id
+#                     budget.save()
+#                     # clear current_budget_id
+#                     # del request.session["budget_id"]
+#                     return redirect("sprout:pay")
+#             except:
+#                 # This exception means there is no budget_id set
+#                 print "You have successfully added a recipient..."
+#             return redirect("sprout:home")
+#             # This redirect means there is a budget_id set
+#             # but the budget already has a recipient
+#             # if the budget hasn't been funded, user can fund
+#             # or return recipients list or budget list depending
+#             # on where they came from
+#         else:
+#             # "What to do if form is not valid?"
+#             pass
+
 class NewRecipient(TemplateView):
     template_name = "sprout/new_recipient.html"
 
     def get(self, request):
-        form = LinkBankForm()
+        headers = {
+            "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e",
+        }
+        bank_list_url = "https://api.paystack.co/bank"
+        response = requests.request("GET", bank_list_url, headers=headers).json()
+        print response["data"]
+
         context = {
-            "form": form,
+            "banks": response["data"]
         }
         return render(request, self.template_name, context)
 
-    def post(self, request):
-        user_id = request.user.id
-        form = LinkBankForm(request.POST)
-        if form.is_valid():
-            new_recipient = form.save(commit=False)
-            new_recipient.user_id = user_id
-            # new_recipient.budget = current_budget_id
-            new_recipient.created = timezone.now()
-            new_recipient.save()
+def resolve_account(request):
+    headers = {
+        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e",
+    }
 
-            try:
-                current_budget_id = request.session["budget_id"]
-                budget = Budget.objects.get(id=current_budget_id)
-                if budget.recipient_id is None:
-                    budget.recipient_id = new_recipient.id
-                    budget.save()
-                    # clear current_budget_id
-                    # del request.session["budget_id"]
-                    return redirect("sprout:pay")
-            except:
-                # This exception means there is no budget_id set
-                print "You have successfully added a recipient..."
-            return redirect("sprout:home")
-            # This redirect means there is a budget_id set
-            # but the budget already has a recipient
-            # if the budget hasn't been funded, user can fund
-            # or return recipients list or budget list depending
-            # on where they came from
-        else:
-            # "What to do if form is not valid?"
-            pass
+    # account_number=0022728151&bank_code=063
+
+    if request.method == "POST":
+        acc_no = request.POST["acc_no"]
+        bank_code = request.POST["bank_code"]
+
+        api = "https://api.paystack.co/bank/resolve?account_number="
+        # 0009271381&bank_code=058"
+        api_string = "&bank_code="
+
+        url = api + acc_no + api_string + bank_code
+        response = requests.request("GET", url, headers=headers).json()
+
+    print response
+    return redirect("sprout:home")
 
 class ListRecipients(TemplateView):
     template_name = "sprout/list_recipients.html"
@@ -130,7 +179,7 @@ def link_recipient(request):
         return redirect("sprout:home")
 
 def pay(request):
-    request.session["budget_id"] = 22
+    # request.session["budget_id"] = 22
     try:
         current_budget_id = request.session["budget_id"]
         user = request.user

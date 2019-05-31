@@ -5,11 +5,6 @@ from django.forms import DateTimeInput # What is this for?
 # import datetime
 from julius import settings
 
-# Unbound form
-# class BudgetSetupForm(forms.Form):
-#     post = forms.CharField()
-
-# Model form
 class DateInput(forms.DateInput):
     input_type = "date"
 
@@ -38,3 +33,7 @@ class LinkBankForm(forms.ModelForm):
             "bank",
             "acc_no",
         ]
+
+class NewRecipientForm(forms.Form):
+    bank = forms.CharField()
+    acc_no = forms.IntegerField()
