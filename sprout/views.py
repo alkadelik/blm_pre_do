@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.urls import reverse
 from chris.models import Budget, Bank
 
-# from django.http import JsonResponse
+from django.http import JsonResponse
 import requests, json # requests was installed by pip
 
 
@@ -62,16 +62,7 @@ class HomeView(TemplateView):
             # }
             # return render(request, self.template_name, context)
 
-def NewRecipient(request):
-    form = NewRecipientForm(request.POST or None)
-    if form.is_valid():
-        bank = form.cleaned_data["bank"]
-        acc_no = form.cleaned_data["acc_no"]
-    context = {
-        "form": form,
-    }
-    return render(request, "sprout/new_recipient.html", context)
-    # return render(request, "sprout:new_recipient", context)
+
 
 #
 # class NewRecipient(TemplateView):
@@ -116,8 +107,10 @@ def NewRecipient(request):
 #             # "What to do if form is not valid?"
 #             pass
 
+# Populates the recepient (bank) options for users select
 class NewRecipient(TemplateView):
     template_name = "sprout/new_recipient.html"
+
 
     def get(self, request):
         headers = {
@@ -127,30 +120,25 @@ class NewRecipient(TemplateView):
         response = requests.request("GET", bank_list_url, headers=headers).json()
 
         response = response["data"]
-        # print type(response)
-        # for object in response:
-        #     print object["code"]
-
-        # print response
 
         context = {
-            "banks": response
+            "banks": response,
+            "user_id": self.request.user.id , # figure out how best to send this for secuirty
         }
         return render(request, self.template_name, context)
 
+# Verifies that the recipient details (bank and account no) are valid
 def resolve_account(request):
     headers = {
         "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e",
     }
-
-    # account_number=0022728151&bank_code=063
 
     if request.method == "POST":
         acc_no = request.POST["acc_no"]
         bank_code = request.POST["bank_code"]
 
         api = "https://api.paystack.co/bank/resolve?account_number="
-        # 0009271381&bank_code=058"
+
         api_string = "&bank_code="
 
         url = api + acc_no + api_string + bank_code
@@ -169,20 +157,41 @@ def resolve_account(request):
         }
         print unresolved_message
 
-    # return JsonResponse(response)
+    # need to figure out how to send this back to the template
     return render(request, "sprout/new_recipient.html", context)
 
-class ListRecipients(TemplateView):
-    template_name = "sprout/list_recipients.html"
+# Adds the new reciient (bank) details to the user's database
+# Is this better populated with values from new_recipient.html
+# or with values from resolve_account(request)?
+def add_recipient(request):
+    if request.method == "POST":
+        acc_no = request.POST["acc_no"]
+        bank_code = request.POST["bank_code"]
+        bank_name = request.POST["bank_name"]
+        user_id = request.POST["user_id"]
+        holder_name = "Debola"
 
-    def get(self, request):
-        user_id = request.user.id
-        banks = Bank.objects.filter(user_id=user_id)
+        # print acc_no
+        # print bank_code
+        # print bank_name
+        # print holder_name
 
-        context = {
-            "banks": banks,
-        }
-        return render(request, self.template_name, context)
+        # holder_name = request.POST["holder_name"] # This should be returned by the API
+        # acc_no = request.POST["acc_no"]
+        # bank_code = request.POST["bank_code"]
+
+        # bank = form.cleaned_data["bank"]
+        # acc_no = form.cleaned_data["acc_no"]
+        new_recipient = Bank(holder_name=holder_name, bank=bank_name,
+            bank_code=bank_code, acc_no=acc_no,
+            created=timezone.now(), user_id=user_id)
+        new_recipient.save()
+    else:
+        print "No post"
+
+    # return render(request, "sprout/list_recipients.html")
+    return redirect("/sprout/")
+    # return render(request, "sprout:new_recipient", context)
 
 def link_recipient(request):
     if request.method == "POST":
@@ -196,6 +205,18 @@ def link_recipient(request):
         except:
             print "There is no budget to link recipient to"
         return redirect("sprout:home")
+
+class ListRecipients(TemplateView):
+    template_name = "sprout/list_recipients.html"
+
+    def get(self, request):
+        user_id = request.user.id
+        banks = Bank.objects.filter(user_id=user_id)
+
+        context = {
+            "banks": banks,
+        }
+        return render(request, self.template_name, context)
 
 def pay(request):
     # request.session["budget_id"] = 22

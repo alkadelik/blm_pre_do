@@ -12,6 +12,6 @@ urlpatterns = [
     url(r'^payment_verification/$', views.payment_verification, name="payment_verification"),
     url(r'^transfer_recipient/$', views.transfer_recipient, name="transfer_recipient"),
     url(r'^transfer/$', views.transfer, name="transfer"),
-    # url(r'^resolve_account/$', views.ResolveAccount.as_view(), name="resolve_account"),
     url(r'^resolve_account/$', views.resolve_account, name="resolve_account"),
+    url(r'^add_recipient/$', views.add_recipient, name="add_recipient"),
 ]

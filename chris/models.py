@@ -43,9 +43,10 @@ class Budget(models.Model):
     updated = models.DateTimeField(null=False)
 
 class Bank(models.Model):
-    name = models.CharField(max_length=128, default="")
-    bank = models.CharField(max_length=10, default="")
-    acc_no = models.IntegerField(blank=True)
+    holder_name = models.CharField(max_length=55, default="") # The account holder's name
+    bank = models.CharField(max_length=55, default="") # The name of the bank
+    bank_code = models.IntegerField(blank=True)
+    acc_no = models.IntegerField(blank=True) # The recipient (bank) account number
     created = models.DateTimeField(null=False)
     user = models.ForeignKey(User)
 

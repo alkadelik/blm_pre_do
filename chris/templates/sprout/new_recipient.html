@@ -17,7 +17,7 @@
     </div>
     <div class="q-block">
       <label>Select bank <br>
-        <select class="" id="yoo" name="">
+        <select class="" id="bank_code" name="">
           {% for bank in banks %}
           <option value="{{ bank.code }}">{{ bank.name }}</option>
           {% endfor %}
@@ -26,18 +26,47 @@
     </div>
     <div class="q-block">
       <label>Enter account number
-        <input type="" id="yaa" onkeyup="yaa()" value="">
+        <input type="" id="acc_no" onkeyup="verify_acc()" value="">
       </label>
       <p id="validation"></p>
     </div>
+    <button onclick="submit()" id="add_bank">Add Bank</button>
   </div>
 </section>
 
 <script type="text/javascript">
-  var acc_no = document.getElementById("yaa").value.trim();
-  var bank_code = document.getElementById("yoo").value.trim();
+  var acc_no = document.getElementById("acc_no").value.trim();
+  var bank_code = document.getElementById("bank_code").value.trim();
+  // var bank_name = document.getElementById("bank_code").text;
 
+  // This should be returned by the API
+  // var holder_name = document.getElementById("bank_code").text.trim();
+
+  function submit(){
+    // if account validated do this:
+    var acc_no = document.getElementById("acc_no").value.trim();
+    var bank_code = document.getElementById("bank_code").value;
+    var bank_name = document.getElementById("bank_code").selectedOptions[0].text;
+
+    $.ajax({
+      type: "POST",
+      url: "/sprout/add_recipient/",
+      data: {
+        bank_code: bank_code,
+        bank_name: bank_name,
+        acc_no: acc_no,
+        user_id: "{{ user_id }}",
+        csrfmiddlewaretoken: "{{csrf_token}}"
+      },
+      success: function(){
+        // window.location.href = "/sprout/list_recipients"
+      }
+    });
+  }
+  //
   function resolve_account(){
+    var acc_no = document.getElementById("acc_no").value.trim();
+    var bank_code = document.getElementById("bank_code").value.trim();
     $.ajax({
       type: "POST",
       url: "/sprout/resolve_account/",
@@ -48,21 +77,24 @@
       }
     });
   };
+  //
+  // function print_validation(validation){
+  //   // $("#validation").text(data.validation);
+  //   console.log(validation);
+  // };
 
-  function print_validation(validation){
-    // $("#validation").text(data.validation);
-    console.log(validation);
-  };
-
-  function yaa(){
+  function verify_acc(){
+    var acc_no = document.getElementById("acc_no").value.trim();
+    var bank_code = document.getElementById("bank_code").value.trim();
     // Update the condition to resolve account if there are 10 digits
     // and bank then changes.
-    if (acc_no.length > 9) {
+    if (acc_no.length === 10) {
+      return resolve_account();
       // console.log(bank_code)
-      return resolve_account().then(function(){
-        console.log(bank_code);
-        return print_validation();
-      })
+      // return resolve_account()//.then(function(){
+        // console.log(bank_code);
+        // return print_validation();
+      // });
     }
   }
 </script>
