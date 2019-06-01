@@ -9,9 +9,9 @@ from datetime import datetime, timedelta
 from django.urls import reverse
 from chris.models import Budget, Bank
 
-import requests # requests was installed by pip
+# from django.http import JsonResponse
+import requests, json # requests was installed by pip
 
-# from django.views.decorators.csrf import csrf_exempt
 
 
 class HomeView(TemplateView):
@@ -125,10 +125,16 @@ class NewRecipient(TemplateView):
         }
         bank_list_url = "https://api.paystack.co/bank"
         response = requests.request("GET", bank_list_url, headers=headers).json()
-        print response["data"]
+
+        response = response["data"]
+        # print type(response)
+        # for object in response:
+        #     print object["code"]
+
+        # print response
 
         context = {
-            "banks": response["data"]
+            "banks": response
         }
         return render(request, self.template_name, context)
 
@@ -150,8 +156,21 @@ def resolve_account(request):
         url = api + acc_no + api_string + bank_code
         response = requests.request("GET", url, headers=headers).json()
 
-    print response
-    return redirect("sprout:home")
+    try:
+        acc_name = response["data"]["account_name"]
+        context = {
+            "validation": acc_name,
+        }
+        print acc_name
+    except:
+        unresolved_message = response["message"]
+        context = {
+            "validation": unresolved_message,
+        }
+        print unresolved_message
+
+    # return JsonResponse(response)
+    return render(request, "sprout/new_recipient.html", context)
 
 class ListRecipients(TemplateView):
     template_name = "sprout/list_recipients.html"

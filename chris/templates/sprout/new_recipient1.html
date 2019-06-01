@@ -34,37 +34,29 @@
 </section>
 
 <script type="text/javascript">
-  var acc_no = document.getElementById("yaa").value.trim();
-  var bank_code = document.getElementById("yoo").value.trim();
+  function yaa() {
+    var acc_no = document.getElementById("yaa").value.trim();
+    var bank_code = document.getElementById("yoo").value.trim();
 
-  function resolve_account(){
-    $.ajax({
-      type: "POST",
-      url: "/sprout/resolve_account/",
-      data: {
-        bank_code: bank_code,
-        acc_no: acc_no,
-        csrfmiddlewaretoken: "{{csrf_token}}"
-      }
-    });
-  };
-
-  function print_validation(validation){
-    // $("#validation").text(data.validation);
-    console.log(validation);
-  };
-
-  function yaa(){
     // Update the condition to resolve account if there are 10 digits
     // and bank then changes.
     if (acc_no.length > 9) {
-      // console.log(bank_code)
-      return resolve_account().then(function(){
-        console.log(bank_code);
-        return print_validation();
-      })
+      console.log(bank_code)
+      $.ajax({
+        type: "POST",
+        url: "/sprout/resolve_account/",
+        data: {
+          bank_code: bank_code,
+          acc_no: acc_no,
+          csrfmiddlewaretoken: "{{csrf_token}}"
+        },
+        callback: function(response){
+          // $("#validation").text(data.validation);
+          console.log(response.validation);
+        },
+      });
     }
-  }
+  };
 </script>
 
 <!-- <form method="post" id="add_recipient">
