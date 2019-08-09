@@ -24,12 +24,12 @@ class Budget(models.Model):
     user = models.ForeignKey(User)
     title = models.CharField(max_length=30, default='') # name of budget
     amount = models.IntegerField(default=0) # total amount to be set aside
-    type = models.BooleanField(default=True) # lump sum or multiple
+    mode = models.NullBooleanField() # all at once or multiple disbursements
     interval = models.IntegerField(default=0) # days between disbursements
-    frequency = models.IntegerField(default=0) # days(1) or weeks(7)
-    freq_count = models.IntegerField(default=0) # count of days or weeks
+    frequency = models.IntegerField(default=0) # days(1), weeks(2), months(3), 30 days(4), year(5)
+    freq_factor = models.IntegerField(default=0) # frequency factor or constant
     pay_value = models.IntegerField(default=0) # amount to be paid at individual disbursement
-    pay_qty = models.IntegerField(default=0) # amount to be paid at individual disbursement
+    pay_qty = models.IntegerField(default=0) # qty of individual disbursements
     pay_count = models.IntegerField(default=0) # count of last disbursement
     first_date = models.DateField(blank=False, null=False) # date first disbursement should be made
     next_date = models.DateField(null=True, blank=True) # date of next disbursement

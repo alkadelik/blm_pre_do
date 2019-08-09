@@ -15,24 +15,24 @@ class BudgetSetupForm(forms.ModelForm):
         fields = [
             "title",
             "amount",
-            "type",
+            "mode",
+            "freq_factor",
             "frequency",
             "pay_qty",
-            "freq_count",
             "first_date",
         ]
         widgets = {
             "first_date": DateInput()
         }
 
-class LinkBankForm(forms.ModelForm):
-
-    class Meta:
-        model = Bank
-        fields = [
-            "bank",
-            "acc_no",
-        ]
+# class LinkBankForm(forms.ModelForm):
+#
+#     class Meta:
+#         model = Bank
+#         fields = [
+#             "bank",
+#             "acc_no",
+#         ]
 
 class NewRecipientForm(forms.Form):
     bank = forms.CharField()

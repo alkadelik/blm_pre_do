@@ -18,6 +18,9 @@
     <div id="app">
       {% block body %}
       {% endblock %}
+      {% block validation %}
+      <p id="validation"></p> <!-- not sure what this validation block is about -->
+      {% endblock %}
       {% if user.is_authenticated %}
       <transition name="fade">
         <div v-if="menu" id="menu">

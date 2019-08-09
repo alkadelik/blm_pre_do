@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
-from sprout.forms import BudgetSetupForm, LinkBankForm, NewRecipientForm
+from sprout.forms import BudgetSetupForm, NewRecipientForm
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.urls import reverse
@@ -26,6 +26,8 @@ class HomeView(TemplateView):
 
     def post(self, request):
         form = BudgetSetupForm(request.POST)
+        # Form to be able to tell what information is requred depending on the mode
+        # i.e. one-off or multiple disbursements. For now, we assume multiple
         if form.is_valid():
             new_budget = form.save(commit=False)
             new_budget.user = request.user
@@ -33,21 +35,54 @@ class HomeView(TemplateView):
             new_budget.updated = timezone.now()
 
             # From form:
-            # amount, type, first_date, frequency
-            # freq_count, status, pay_qty
+            # amount, mode, first_date, frequency
+            # freq_factor, status, pay_qty (note: pay_qty might need to be Calculated not entered)
             amount = form.cleaned_data["amount"]
-            frequency = form.cleaned_data["frequency"]
-            freq_count = form.cleaned_data["freq_count"]
-            pay_qty = form.cleaned_data["pay_qty"]
             first_date = form.cleaned_data["first_date"]
-            pay_qty = form.cleaned_data["pay_qty"]
+            mode = form.cleaned_data["mode"]
+
+            # pay_status = updated_later
+
+            if mode == True: # It means this is a one-off payment
+                # No frequency, frequency factor or pay_qty, thus, do not display them
+                # Is it tautology setting them to None here even though they were never set
+                new_budget.freq_factor = 0
+                new_budget.frequency = 0
+                new_budget.pay_qty = 1
+
+                new_budget.pay_value = amount
+                new_budget.final_date = first_date
+                new_budget.save()
+            elif mode == False: # Multiple disburesments
+                freq_factor = int(form.cleaned_data["freq_factor"])
+                frequency = form.cleaned_data["frequency"]
+                pay_qty = form.cleaned_data["pay_qty"]
 
             # Calculated:
-            interval = frequency * freq_count
-            new_budget.interval = interval
-            new_budget.pay_value = amount / pay_qty
-            new_budget.final_date = first_date + timedelta(days=(interval*(pay_qty-1)))
-            new_budget.save()
+            # interval, pay_value, final_date
+
+                # convert frequency to number of days (if days, weeks, or 30 days)
+                # interval = 0
+                if freq_factor == 1:
+                    global interval
+                    interval = 1 * frequency
+                    new_budget.interval = interval
+                elif freq_factor == 2:
+                    global interval
+                    interval = 7 * frequency
+                    new_budget.interval = interval
+
+
+            # new_budget.interval = interval # (measured in number of days for now)
+            # This shouldn't be. The value should be the amount divided by number of intervals
+            # new_budget.pay_value = amount / pay_qty
+
+
+                # The user may be confused as to how the math is done becuase quotient is being used
+                # pay_qty = amount//interval
+                new_budget.pay_value = amount/pay_qty
+                new_budget.final_date = first_date + timedelta(days=(interval*(pay_qty-1)))
+                new_budget.save()
 
             request.session["budget_id"] = new_budget.id
 
@@ -61,51 +96,6 @@ class HomeView(TemplateView):
             #     "form": form,
             # }
             # return render(request, self.template_name, context)
-
-
-
-#
-# class NewRecipient(TemplateView):
-#     template_name = "sprout/new_recipient.html"
-#
-#     def get(self, request):
-#         form = LinkBankForm()
-#         context = {
-#             "form": form,
-#         }
-#         return render(request, self.template_name, context)
-#
-#     def post(self, request):
-#         user_id = request.user.id
-#         form = LinkBankForm(request.POST)
-#         if form.is_valid():
-#             new_recipient = form.save(commit=False)
-#             new_recipient.user_id = user_id
-#             # new_recipient.budget = current_budget_id
-#             new_recipient.created = timezone.now()
-#             new_recipient.save()
-#
-#             try:
-#                 current_budget_id = request.session["budget_id"]
-#                 budget = Budget.objects.get(id=current_budget_id)
-#                 if budget.recipient_id is None:
-#                     budget.recipient_id = new_recipient.id
-#                     budget.save()
-#                     # clear current_budget_id
-#                     # del request.session["budget_id"]
-#                     return redirect("sprout:pay")
-#             except:
-#                 # This exception means there is no budget_id set
-#                 print "You have successfully added a recipient..."
-#             return redirect("sprout:home")
-#             # This redirect means there is a budget_id set
-#             # but the budget already has a recipient
-#             # if the budget hasn't been funded, user can fund
-#             # or return recipients list or budget list depending
-#             # on where they came from
-#         else:
-#             # "What to do if form is not valid?"
-#             pass
 
 # Populates the recepient (bank) options for users select
 class NewRecipient(TemplateView):
@@ -149,6 +139,8 @@ def resolve_account(request):
         context = {
             "validation": acc_name,
         }
+        # how can this acc_name be sent back to user screen to be displayed?
+        # and then sent back when form is submitted so it can be entered to db
         print acc_name
     except:
         unresolved_message = response["message"]
@@ -168,26 +160,37 @@ def add_recipient(request):
         acc_no = request.POST["acc_no"]
         bank_code = request.POST["bank_code"]
         bank_name = request.POST["bank_name"]
-        user_id = request.POST["user_id"]
-        holder_name = "Debola"
+        user_id = request.POST["user_id"] # Figure out the
+            # best way to do this
+        holder_name = "Debola" # this should be from the validation
+        recipient_code = "" # Figure out how to get this
 
-        # print acc_no
-        # print bank_code
-        # print bank_name
-        # print holder_name
-
-        # holder_name = request.POST["holder_name"] # This should be returned by the API
-        # acc_no = request.POST["acc_no"]
-        # bank_code = request.POST["bank_code"]
-
-        # bank = form.cleaned_data["bank"]
-        # acc_no = form.cleaned_data["acc_no"]
         new_recipient = Bank(holder_name=holder_name, bank=bank_name,
             bank_code=bank_code, acc_no=acc_no,
             created=timezone.now(), user_id=user_id)
         new_recipient.save()
+
+        try:
+            current_budget_id = request.session["budget_id"]
+            budget = Budget.objects.get(id=current_budget_id)
+            if budget.recipient_id is None:
+                budget.recipient_id = new_recipient.id
+                budget.save()
+                # clear current_budget_id
+                # del request.session["budget_id"]
+                return redirect("sprout:pay")
+        except:
+            # This exception means there is no budget_id set
+            print "You have successfully added a recipient..."
+        return redirect("sprout:home")
+        # This redirect means there is a budget_id set
+        # but the budget already has a recipient
+        # if the budget hasn't been funded, user can fund
+        # or return recipients list or budget list depending
+        # on where they came from
     else:
-        print "No post"
+        # "What to do if form is not not post?"
+        pass
 
     # return render(request, "sprout/list_recipients.html")
     return redirect("/sprout/")

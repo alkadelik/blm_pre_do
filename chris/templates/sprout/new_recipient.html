@@ -26,9 +26,11 @@
     </div>
     <div class="q-block">
       <label>Enter account number
-        <input type="" id="acc_no" onkeyup="verify_acc()" value="">
+        <input type="" id="acc_no" maxlength="10" onkeyup="verify_acc()" value="">
       </label>
+      {% block validation %}
       <p id="validation"></p>
+      {% endblock %}
     </div>
     <button onclick="submit()" id="add_bank">Add Bank</button>
   </div>
