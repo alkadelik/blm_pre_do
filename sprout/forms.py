@@ -19,10 +19,10 @@ class BudgetSetupForm(forms.ModelForm):
             "freq_factor",
             "frequency",
             "pay_qty",
-            "first_date",
+            "next_date",
         ]
         widgets = {
-            "first_date": DateInput()
+            "next_date": DateInput()
         }
 
 # class LinkBankForm(forms.ModelForm):
