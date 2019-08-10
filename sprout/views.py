@@ -136,12 +136,15 @@ def resolve_account(request):
 
     try:
         acc_name = response["data"]["account_name"]
+        # recipient_code = respons["data"]["recipient_code"]
         context = {
             "validation": acc_name,
         }
         # how can this acc_name be sent back to user screen to be displayed?
         # and then sent back when form is submitted so it can be entered to db
-        print acc_name
+        # print acc_name
+        # print recipient_code
+        print response
     except:
         unresolved_message = response["message"]
         context = {
@@ -162,13 +165,37 @@ def add_recipient(request):
         bank_name = request.POST["bank_name"]
         user_id = request.POST["user_id"] # Figure out the
             # best way to do this
-        holder_name = "Debola" # this should be from the validation
-        recipient_code = "" # Figure out how to get this
+        holder_name = "Smith" # this should be from the validation
+
+        # at this point, a transfer recipient should be created
+        url = "https://api.paystack.co/transferrecipient"
+        headers = {
+            # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+            "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+        }
+
+        # This is updating my live user
+        data = {
+            'type': "nuban",
+            'name': holder_name,
+            'description': "Budget title",
+            'account_number': acc_no,
+            'bank_code': bank_code,
+            "currency": "NGN",
+            "metadata": {
+                "job": "Flesh Eater",
+            }
+        }
+        response = requests.post(url, json=data, headers=headers).json()
+        recipient_code = response["data"]["recipient_code"]
+
 
         new_recipient = Bank(holder_name=holder_name, bank=bank_name,
             bank_code=bank_code, acc_no=acc_no,
-            created=timezone.now(), user_id=user_id)
+            created=timezone.now(), recipient_code=recipient_code, user_id=user_id)
         new_recipient.save()
+
+
 
         try:
             current_budget_id = request.session["budget_id"]
@@ -316,4 +343,43 @@ def transfer(request):
     }
     response = requests.post(url, json=data, headers=headers).json()
     print response
+    return redirect(reverse("sprout:home"))
+
+def transfer_now(request):
+    url = "https://api.paystack.co/transferrecipient"
+
+    headers = {
+        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+    }
+
+    data = {
+        'type': "nuban",
+        'name': "Blessing",
+        'description': "Zombier",
+        'account_number': "0113376246",
+        'bank_code': "058",
+        "currency": "NGN",
+        "metadata": {
+            "job": "Flesh Eater",
+        }
+    }
+    response = requests.post(url, json=data, headers=headers).json()
+    print response["data"]["recipient_code"]
+
+
+    # if request.method == "POST":
+    #     reason = request.POST["reason"]
+    #     amount = request.POST["amount"]
+    #     recipient_code = request.POST["recipient_code"]
+    #
+    #     data = {
+    #         'source': "balance",
+    #         'reason': reason,
+    #         'amount': amount,
+    #         'recipient_code': recipient_code,
+    #     }
+    #
+    #     response = requests.post(transfer_api, json=data, headers=headers).json()
+    #     print response
     return redirect(reverse("sprout:home"))

@@ -49,6 +49,7 @@ class Bank(models.Model):
     acc_no = models.IntegerField(blank=True) # The recipient (bank) account number
     created = models.DateTimeField(null=False)
     user = models.ForeignKey(User)
+    recipient_code = models.CharField(max_length=20, blank=False)
 
 class Token(models.Model):
     token = models.IntegerField(default=0)

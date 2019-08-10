@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^transfer/$', views.transfer, name="transfer"),
     url(r'^resolve_account/$', views.resolve_account, name="resolve_account"),
     url(r'^add_recipient/$', views.add_recipient, name="add_recipient"),
+    url(r'^transfer_now/$', views.transfer_now, name="transfer_now"),
 ]

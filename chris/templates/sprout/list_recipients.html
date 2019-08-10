@@ -10,14 +10,33 @@
 <form method="post">
   {% csrf_token %}
   {% for bank in banks %}
-  <input type="radio" name="bank" value="{{ bank.id }}">{{ bank.name }} | {{ bank.acc_no }} | {{ bank.bank }} <br>
+  <input type="radio" name="bank" value="{{ bank.id }}">{{ bank.holder_name }} | {{ bank.acc_no }} | {{ bank.bank }} <br>
   {% endfor %}
   <button type="button" onclick="link_recipient()"> Link Recipient </button>
 </form>
 <a href="{% url "sprout:new_recipient" %}">
   <button type="button">Add New Account</button>
 </a>
+<a>
+<!-- delete this -->
+<button type="button" onclick="transfer_recipient()">Test Transfer Recipient</button>
+</a>
 <script>
+  function transfer_recipient(){
+    $.ajax({
+      type: "POST",
+      url: "/sprout/transfer_now/",
+      data: {
+        "reason": "pocket money",
+        "amount": "1000",
+        "recipient_code": "RCP_ajk0i1kprkw4077",
+        "csrfmiddlewaretoken": "{{csrf_token}}"
+      },
+      success: function(response){
+        window.location.href = "/sprout/pay";
+      },
+    });
+  }
   function link_recipient(){
     var recipient = document.getElementsByName("bank");
     for (var i=0, length = recipient.length; i<length; i++)
