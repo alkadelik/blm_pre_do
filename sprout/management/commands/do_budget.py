@@ -13,10 +13,12 @@ class Command(BaseCommand):
             budget_id = options["budget_id"]
             budget = Budget.objects.get(id=budget_id)
 
-            # Get amount
+            # Get budget
+            # Look at parameters
+                # disbursement due on this date
+                # amount
+                # Budget is not expiered/closed (status)
             # Verifiy budget is funded
-            # Verify budget is not expired/closed
-            #
             # Pay budget
             # Update Status
             # Set next/last date

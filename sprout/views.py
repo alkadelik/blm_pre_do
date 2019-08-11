@@ -35,11 +35,13 @@ class HomeView(TemplateView):
             new_budget.updated = timezone.now()
 
             # From form:
-            # amount, mode, first_date, frequency
+            # amount, mode, next_date, frequency
             # freq_factor, status, pay_qty (note: pay_qty might need to be Calculated not entered)
-            amount = form.cleaned_data["amount"]
-            first_date = form.cleaned_data["first_date"]
+            amount = form.cleaned_data["amount"] * 100 # amount always in kobo
+            next_date = form.cleaned_data["next_date"]
             mode = form.cleaned_data["mode"]
+
+            new_budget.amount = amount # have to override the entry from the model form
 
             # pay_status = updated_later
 
@@ -51,7 +53,7 @@ class HomeView(TemplateView):
                 new_budget.pay_qty = 1
 
                 new_budget.pay_value = amount
-                new_budget.final_date = first_date
+                new_budget.final_date = next_date
                 new_budget.save()
             elif mode == False: # Multiple disburesments
                 freq_factor = int(form.cleaned_data["freq_factor"])
@@ -81,7 +83,7 @@ class HomeView(TemplateView):
                 # The user may be confused as to how the math is done becuase quotient is being used
                 # pay_qty = amount//interval
                 new_budget.pay_value = amount/pay_qty
-                new_budget.final_date = first_date + timedelta(days=(interval*(pay_qty-1)))
+                new_budget.final_date = next_date + timedelta(days=(interval*(pay_qty-1)))
                 new_budget.save()
 
             request.session["budget_id"] = new_budget.id
@@ -195,8 +197,6 @@ def add_recipient(request):
             created=timezone.now(), recipient_code=recipient_code, user_id=user_id)
         new_recipient.save()
 
-
-
         try:
             current_budget_id = request.session["budget_id"]
             budget = Budget.objects.get(id=current_budget_id)
@@ -252,10 +252,11 @@ def pay(request):
     # request.session["budget_id"] = 22
     try:
         current_budget_id = request.session["budget_id"]
+        budget = Budget.objects.get(id=current_budget_id)
         user = request.user
         pk = "pk_test_9b841d2e67007aeca304a57442891a06ad312ece"
         email = "user@sprout.com"
-        amount = 30000 # price is always in kobo
+        amount = budget.amount # price is always in kobo
         currency = "NGN"
 
         context = {
@@ -304,82 +305,59 @@ def payment_verification(request):
 
 # Have a history of budgets being funded (similar to TuGs payment history)
 
-def transfer_recipient(request):
-    url = "https://api.paystack.co/transferrecipient"
-
-    headers = {
-        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
-        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
-    }
-    # This is updating my live user
-    data = {
-        'type': "nuban",
-        'name': "Blessing",
-        'description': "Zombier",
-        'account_number': "0113376246",
-        'bank_code': "058",
-        "currency": "NGN",
-        "metadata": {
-            "job": "Flesh Eater",
-        }
-    }
-    response = requests.post(url, json=data, headers=headers).json()
-    print response
-    return redirect(reverse("sprout:home"))
-
 def transfer(request):
-    url = "https://api.paystack.co/transfer"
+    try:
+        budget_id = 58
+        budget = Budget.objects.get(id=budget_id)
+        budget_title = budget.title
+        next_date = budget.next_date
+        pay_value = budget.pay_value
+        budget_status = budget.budget_status
+        pay_count = budget.pay_count
+        pay_qty = budget.pay_qty
+        interval = budget.interval
+        recipient_id = budget.recipient_id
+        todays_date = datetime.today().date()
 
-    headers = {
-        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
-        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
-    }
-    # This is updating my live user
-    data = {
-        'source': "balance",
-        'reason': "Testing",
-        'amount': "5000",
-        'recipient': "RCP_ajk0i1kprkw4077",
-    }
-    response = requests.post(url, json=data, headers=headers).json()
-    print response
+        if next_date == todays_date and  0 < budget_status < 3 and pay_count < pay_qty:
+            # ideally store the recipient_code with the budget id
+            # so we don't have to do a db lookup for that - or do we?
+            recipient = Bank.objects.get(id=recipient_id).recipient_code
+
+            # Pay budget
+            # In future, it might be better to batch payments for the day
+            url = "https://api.paystack.co/transfer"
+            headers = {
+                # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+                "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+            }
+
+            data = {
+                'source': "balance",
+                'reason': budget_title,
+                'amount': pay_value,
+                'recipient': recipient,
+            }
+            response = requests.post(url, json=data, headers=headers).json()
+
+            # AFTER PAYMENT:
+            # status update
+            pay_count += 1
+            budget.pay_count = pay_count
+            if pay_count < pay_qty:
+                budget.budget_status = 2
+                # Set next/last date
+                next_date = next_date + timedelta(days=(interval))
+                budget.next_date = next_date
+                budget.save()
+            elif pay_count == pay_qty:
+                budget.budget_status = 3
+                budget.save()
+        else:
+            print "budget complete or expired. Status: ", budget_status
+
+    except:
+        None
+
     return redirect(reverse("sprout:home"))
-
-def transfer_now(request):
-    url = "https://api.paystack.co/transferrecipient"
-
-    headers = {
-        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
-        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
-    }
-
-    data = {
-        'type': "nuban",
-        'name': "Blessing",
-        'description': "Zombier",
-        'account_number': "0113376246",
-        'bank_code': "058",
-        "currency": "NGN",
-        "metadata": {
-            "job": "Flesh Eater",
-        }
-    }
-    response = requests.post(url, json=data, headers=headers).json()
-    print response["data"]["recipient_code"]
-
-
-    # if request.method == "POST":
-    #     reason = request.POST["reason"]
-    #     amount = request.POST["amount"]
-    #     recipient_code = request.POST["recipient_code"]
-    #
-    #     data = {
-    #         'source': "balance",
-    #         'reason': reason,
-    #         'amount': amount,
-    #         'recipient_code': recipient_code,
-    #     }
-    #
-    #     response = requests.post(transfer_api, json=data, headers=headers).json()
-    #     print response
-    return redirect(reverse("sprout:home"))
+    # return render(request, "sprout/list_recipients.html")

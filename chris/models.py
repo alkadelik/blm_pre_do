@@ -31,10 +31,9 @@ class Budget(models.Model):
     pay_value = models.IntegerField(default=0) # amount to be paid at individual disbursement
     pay_qty = models.IntegerField(default=0) # qty of individual disbursements
     pay_count = models.IntegerField(default=0) # count of last disbursement
-    first_date = models.DateField(blank=False, null=False) # date first disbursement should be made
-    next_date = models.DateField(null=True, blank=True) # date of next disbursement
+    next_date = models.DateField(blank=False, null=False) # date of next disbursement to be made
     final_date = models.DateField(null=False, blank=True) # date of last disbursement
-    budget_status = models.IntegerField(default=0) # budget_entered, paid, active, ended, paused
+    budget_status = models.IntegerField(default=0) # 0=unpaid, 1=paid, 2=disbursement started, 3=disbursement complete, 4=other
     pay_ref = models.CharField(max_length=30, null=True) # Payment reference for funding a budget
     pay_status = models.CharField(max_length=10, null=True) # Status of payment attempt
     amount_funded = models.IntegerField(null=True) # amount funded for budget

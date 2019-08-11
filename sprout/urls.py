@@ -10,9 +10,7 @@ urlpatterns = [
     url(r'^link_recipient/$', views.link_recipient, name="link_recipient"),
     url(r'^pay/$', views.pay, name="pay"),
     url(r'^payment_verification/$', views.payment_verification, name="payment_verification"),
-    url(r'^transfer_recipient/$', views.transfer_recipient, name="transfer_recipient"),
     url(r'^transfer/$', views.transfer, name="transfer"),
     url(r'^resolve_account/$', views.resolve_account, name="resolve_account"),
     url(r'^add_recipient/$', views.add_recipient, name="add_recipient"),
-    url(r'^transfer_now/$', views.transfer_now, name="transfer_now"),
 ]
