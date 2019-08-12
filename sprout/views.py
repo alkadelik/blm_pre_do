@@ -12,8 +12,6 @@ from chris.models import Budget, Bank
 from django.http import JsonResponse
 import requests, json # requests was installed by pip
 
-
-
 class HomeView(TemplateView):
     template_name = "sprout/home.html"
 
@@ -194,7 +192,7 @@ def add_recipient(request):
 
         new_recipient = Bank(holder_name=holder_name, bank=bank_name,
             bank_code=bank_code, acc_no=acc_no,
-            created=timezone.now(), recipient_code=recipient_code, user_id=user_id)
+            created=timezone.now(), user_id=user_id)
         new_recipient.save()
 
         try:
@@ -202,6 +200,7 @@ def add_recipient(request):
             budget = Budget.objects.get(id=current_budget_id)
             if budget.recipient_id is None:
                 budget.recipient_id = new_recipient.id
+                budget.recipient_code = recipient_code
                 budget.save()
                 # clear current_budget_id
                 # del request.session["budget_id"]

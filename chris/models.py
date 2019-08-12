@@ -37,7 +37,8 @@ class Budget(models.Model):
     pay_ref = models.CharField(max_length=30, null=True) # Payment reference for funding a budget
     pay_status = models.CharField(max_length=10, null=True) # Status of payment attempt
     amount_funded = models.IntegerField(null=True) # amount funded for budget
-    recipient = models.ForeignKey("Bank", blank=True, null=True) # actuall account/destination budget is spent on
+    recipient = models.ForeignKey("Bank", blank=True, null=True) # actual account/destination budget is spent on
+    recipient_code = models.CharField(max_length=20, blank=False) # required by Paystack
     created = models.DateTimeField(null=False)
     updated = models.DateTimeField(null=False)
 
@@ -48,7 +49,6 @@ class Bank(models.Model):
     acc_no = models.IntegerField(blank=True) # The recipient (bank) account number
     created = models.DateTimeField(null=False)
     user = models.ForeignKey(User)
-    recipient_code = models.CharField(max_length=20, blank=False)
 
 class Token(models.Model):
     token = models.IntegerField(default=0)
