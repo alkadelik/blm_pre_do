@@ -306,7 +306,7 @@ def payment_verification(request):
 
 def transfer(request):
     try:
-        budget_id = 58
+        budget_id = 59
         budget = Budget.objects.get(id=budget_id)
         budget_title = budget.title
         next_date = budget.next_date
@@ -315,14 +315,10 @@ def transfer(request):
         pay_count = budget.pay_count
         pay_qty = budget.pay_qty
         interval = budget.interval
-        recipient_id = budget.recipient_id
+        recipient = budget.recipient_code
         todays_date = datetime.today().date()
 
         if next_date == todays_date and  0 < budget_status < 3 and pay_count < pay_qty:
-            # ideally store the recipient_code with the budget id
-            # so we don't have to do a db lookup for that - or do we?
-            recipient = Bank.objects.get(id=recipient_id).recipient_code
-
             # Pay budget
             # In future, it might be better to batch payments for the day
             url = "https://api.paystack.co/transfer"
