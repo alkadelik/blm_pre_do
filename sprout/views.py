@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from django.shortcuts import render, redirect
 from sprout.forms import BudgetSetupForm, NewRecipientForm
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from django.urls import reverse
 from chris.models import Budget, Bank
 
@@ -305,54 +305,68 @@ def payment_verification(request):
 # Have a history of budgets being funded (similar to TuGs payment history)
 
 def transfer(request):
-    try:
-        budget_id = 59
-        budget = Budget.objects.get(id=budget_id)
-        budget_title = budget.title
-        next_date = budget.next_date
-        pay_value = budget.pay_value
-        budget_status = budget.budget_status
-        pay_count = budget.pay_count
-        pay_qty = budget.pay_qty
-        interval = budget.interval
-        recipient = budget.recipient_code
-        todays_date = datetime.today().date()
+    url = "https://api.paystack.co/transfer/bulk"
+    headers = {
+        # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
+        "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
+    }
 
-        if next_date == todays_date and  0 < budget_status < 3 and pay_count < pay_qty:
-            # Pay budget
-            # In future, it might be better to batch payments for the day
-            url = "https://api.paystack.co/transfer"
-            headers = {
-                # "Authorization": "Bearer sk_test_7cb2764341285a8c91ec4ce0c979070188be9cce",
-                "Authorization": "Bearer sk_live_01ee65297a9ae5bdf8adbe9ae7cdf6163384a00e"
-            }
+    # Consider making it such that all budgets that are stored in the db where a next_date
+    # must have been funded, or are purged at some point. This saves us from filtering
+    # non-serious budgets
 
-            data = {
-                'source': "balance",
-                'reason': budget_title,
-                'amount': pay_value,
-                'recipient': recipient,
-            }
-            response = requests.post(url, json=data, headers=headers).json()
+    today = datetime.today()
+    due_payments = Budget.objects.filter(budget_status__gte=1, budget_status__lt=3,
+        next_date__year=today.year,
+        next_date__month=today.month,
+        next_date__day=today.day
+        )
+        # Is there an advantage to also filter by pay_count < pay_qty
+        # or does the status filter suffice for this?
 
-            # AFTER PAYMENT:
-            # status update
-            pay_count += 1
-            budget.pay_count = pay_count
-            if pay_count < pay_qty:
-                budget.budget_status = 2
+    transfers = []
+    to_update = []
+    for budget in due_payments:
+        # transfers = [{}, {}]
+        transfer = {"amount": budget.pay_value, "recipient": budget.recipient_code}
+        params = {
+            "budget_id": budget.id,
+            "budget_title": budget.title, # reserve this for reason
+            "budget_status": budget.budget_status,
+            "pay_count": budget.pay_count,
+            "pay_qty": budget.pay_qty,
+            "interval": budget.interval
+        }
+        transfers.append(transfer)
+        to_update.append(params)
+
+    # Sending to the transfers API
+    data = {
+        "currency": "NGN",
+        "source": "balance",
+        "transfers": transfers,
+    }
+    response = requests.post(url, json=data, headers=headers).json()
+
+    # After payment: Update the budget status and next date in db
+    if response["status"] == True:
+    # Better yet, check that the number of transfers queued is equal to the number of
+    # transfers sent i.e. the number in `response["message"]`
+        for budget in due_payments:
+            # is the order in whicn they are retrieved from the database the same
+            # as the order they are here?
+            budget.pay_count += 1
+            if budget.pay_count < budget.pay_qty:
+                budget.status = 2
                 # Set next/last date
-                next_date = next_date + timedelta(days=(interval))
-                budget.next_date = next_date
+                budget.next_date = today + timedelta(days=(budget.interval))
+                # should "next_date" be used instead of "today" as best practice?
                 budget.save()
-            elif pay_count == pay_qty:
+            elif budget.pay_count == budget.pay_qty:
                 budget.budget_status = 3
                 budget.save()
-        else:
-            print "budget complete or expired. Status: ", budget_status
-
-    except:
-        None
+    else:
+        print "Transfers failed with message:", "no message yet"
 
     return redirect(reverse("sprout:home"))
     # return render(request, "sprout/list_recipients.html")
