@@ -254,7 +254,7 @@ def pay(request):
         budget = Budget.objects.get(id=current_budget_id)
         user = request.user
         pk = "pk_test_9b841d2e67007aeca304a57442891a06ad312ece"
-        email = "user@sprout.com"
+        email = "user@sprout.com" # should be user's email
         amount = budget.amount # price is always in kobo
         currency = "NGN"
 
@@ -366,7 +366,7 @@ def transfer(request):
                 budget.budget_status = 3
                 budget.save()
     else:
-        print "Transfers failed with message:", "no message yet"
+        print "Transfers failed with message:", response["message"]
 
     return redirect(reverse("sprout:home"))
     # return render(request, "sprout/list_recipients.html")
