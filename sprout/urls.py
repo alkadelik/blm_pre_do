@@ -3,8 +3,8 @@ from django.conf.urls import url
 from sprout import views
 
 urlpatterns = [
-    url(r'^$', views.HomeView.as_view(), name="home"),
-    # url(r'^$', HomeView.as_view(), name="home"),
+    url(r'^$', views.HomeView.as_view(), name="home"), # Used with class based view
+    # url(r'^$', views.home, name="home"),
     url(r'^new_recipient/$', views.NewRecipient.as_view(), name="new_recipient"),
     url(r'^list_recipients/$', views.ListRecipients.as_view(), name="list_recipients"),
     url(r'^link_recipient/$', views.link_recipient, name="link_recipient"),

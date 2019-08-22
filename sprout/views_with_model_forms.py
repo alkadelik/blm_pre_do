@@ -15,67 +15,87 @@ import requests, json # requests was installed by pip
 class HomeView(TemplateView):
     template_name = "sprout/home.html"
 
-    # Form to be able to tell what information is requred depending on the mode
-    # i.e. one-off or multiple disbursements. For now, we assume multiple
+    def get(self, request):
+        form = BudgetSetupForm()
+        context = {
+            "form": form,
+        }
+        return render(request, self.template_name, context)
+
     def post(self, request):
-        if request.method == "POST":
-            new_budget = Budget()
+        form = BudgetSetupForm(request.POST)
+        # Form to be able to tell what information is requred depending on the mode
+        # i.e. one-off or multiple disbursements. For now, we assume multiple
+        if form.is_valid():
+            new_budget = form.save(commit=False)
             new_budget.user = request.user
             new_budget.created = timezone.now()
             new_budget.updated = timezone.now()
 
             # From form:
-            amount = int(request.POST["amount"]) * 100 # amount always in kobo
-            next_date = datetime.strptime(request.POST["next_date"], "%Y-%m-%d")
-            interval = ""
+            # amount, mode, next_date, frequency
+            # freq_factor, status, pay_qty (note: pay_qty might need to be Calculated not entered)
+            amount = form.cleaned_data["amount"] * 100 # amount always in kobo
+            next_date = form.cleaned_data["next_date"]
+            mode = form.cleaned_data["mode"]
 
-            new_budget.title = request.POST["title"]
-            new_budget.next_date = next_date
-            new_budget.mode = request.POST["mode"]
             new_budget.amount = amount # have to override the entry from the model form
 
-            if new_budget.mode == "1": # It means this is a one-off payment
+            # pay_status = updated_later
+
+            if mode == True: # It means this is a one-off payment
                 # No frequency, frequency factor or pay_qty, thus, do not display them
                 # Is it tautology setting them to None here even though they were never set
                 new_budget.freq_factor = 0
                 new_budget.frequency = 0
                 new_budget.pay_qty = 1
+
                 new_budget.pay_value = amount
                 new_budget.final_date = next_date
                 new_budget.save()
-            elif new_budget.mode == "0": # Multiple disburesments
-                pay_qty = int(request.POST["pay_qty"])
-                frequency = request.POST["frequency"]
-                freq_factor = int(request.POST["freq_factor"])
+            elif mode == False: # Multiple disburesments
+                freq_factor = int(form.cleaned_data["freq_factor"])
+                frequency = form.cleaned_data["frequency"]
+                pay_qty = form.cleaned_data["pay_qty"]
 
-                new_budget.freq_factor = freq_factor
-                new_budget.frequency = frequency
-                new_budget.pay_qty = pay_qty
-                new_budget.pay_value = amount/pay_qty
-                # The user may be confused as to how the math is done becuase quotient is being used
-                # pay_qty = amount//interval
+            # Calculated:
+            # interval, pay_value, final_date
 
                 # convert frequency to number of days (if days, weeks, or 30 days)
-                if frequency == "1":
+                # interval = 0
+                if freq_factor == 1:
                     global interval
-                    interval = 1 * freq_factor
+                    interval = 1 * frequency
                     new_budget.interval = interval
-                elif frequency == "2":
+                elif freq_factor == 2:
                     global interval
-                    interval = 7 * freq_factor
+                    interval = 7 * frequency
                     new_budget.interval = interval
 
+
+            # new_budget.interval = interval # (measured in number of days for now)
+            # This shouldn't be. The value should be the amount divided by number of intervals
+            # new_budget.pay_value = amount / pay_qty
+
+
+                # The user may be confused as to how the math is done becuase quotient is being used
+                # pay_qty = amount//interval
+                new_budget.pay_value = amount/pay_qty
                 new_budget.final_date = next_date + timedelta(days=(interval*(pay_qty-1)))
                 new_budget.save()
 
             request.session["budget_id"] = new_budget.id
-            print request.session["budget_id"]
+
+            # Updated on "budget execution view":
+            # pay_count, next_date,
 
             return redirect("sprout:list_recipients")
 
-        else:
-            return render(request, self.template_name)
-
+            # Below was requried if form was submitting to itself
+            # context = {
+            #     "form": form,
+            # }
+            # return render(request, self.template_name, context)
 
 # Populates the recepient (bank) options for users select
 class NewRecipient(TemplateView):
@@ -267,11 +287,11 @@ def payment_verification(request):
             current_budget_id = request.session["budget_id"]
             budget = Budget.objects.get(id=current_budget_id)
             budget.pay_status = response["data"]["status"]
+            print budget.pay_status
 
             if budget.pay_status == "success":
                 budget.pay_ref = response["data"]["reference"]
                 budget.amount_funded = response["data"]["amount"]
-                # check that amount funded equals budget amount
                 budget.budget_status = 1
                 budget.save()
                 del request.session["budget_id"]

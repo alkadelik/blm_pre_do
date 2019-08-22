@@ -8,10 +8,12 @@
 <form method="POST">
   {% csrf_token %}
   {{ form.as_p }}
-  <button type="submit" @click="savebudget()">Link acco</button>
+  <button type="submit">Link acco</button>
+  <!-- <button type="submit" @click="savebudget()">Link acco</button> -->
 </form>
 <h2>{{ text }}</h2>
-<form class="" action="index.html" method="post">
+<form class="" id="" action="" method="POST">
+  {% csrf_token %}
     <section v-show="step === 6" class="fence">
       <div id="title-block">
         <h2>Pocket Money</h2>
@@ -47,17 +49,26 @@
         <div class="q-block">
           <label>How do you want $budget disbursed to you?</label>
           <label id="radio">In one lump sum
-            <input type="radio" name="disbursement" value="">
+            <input type="radio" name="" value="">
             <span class="checkmark"></span>
           </label>
           <label id="radio">In multiple disbursements
-            <input type="radio" name="disbursement" value="">
+            <input type="radio" name="" value="">
             <span class="checkmark"></span>
           </label>
         </div>
         <div class="q-block">
           <label for="">How frequently do you want $budget disbursed?
-            <input type="text" name="" value="" placeholder="">
+            <label id="radio">Daily
+              <input type="radio" name="frequency" value=1>
+              <span class="checkmark"></span>
+            </label>
+            <label id="radio">Weekly
+              <input type="radio" name="frequency" value=2>
+              <span class="checkmark"></span>
+            </label>
+            <input type="text" name="freq_factor" value="" placeholder="freq factor">
+            <input type="text" name="pay_qty" value="" placeholder="Number of payments">
           </label>
         </div>
       </div>
@@ -71,17 +82,17 @@
         <div class="q-block">
           <label>How do you want <span class="highlight">{{budget}}</span> disbursed back to you?</label>
           <label id="radio">In one lump sum
-            <input type="radio" name="disbursement" value="">
+            <input type="radio" name="mode" value="1">
             <span class="checkmark"></span>
           </label>
           <label id="radio">In multiple disbursements
-            <input type="radio" name="disbursement" value="">
+            <input type="radio" name="mode" value="0">
             <span class="checkmark"></span>
           </label>
         </div>
         <div class="q-block">
           <label for="">What day do you want it disbursed?
-            <input class="input-date" type="date" name="" value="" placeholder="">
+            <input class="input-date" type="date" name="next_date"  placeholder=>
           </label>
         </div>
       </div>
@@ -93,20 +104,21 @@
           <div class="gap"></div>
           <div class="q-block">
             <label for="">Name this budget
-              <input class="capitalise" type="text" name="" value="" :maxlength="charmax" v-model="budget">
+              <input class="capitalise" type="text" name="title" value="" :maxlength="charmax" v-model="budget">
               <div class="charcount" v-text="charcount()"></div>
             </label>
           </div>
           <div class="q-block">
             <label for="" class="curious-case">How much do you want to set aside for <span class="highlight">[[budget]]</span> now?
-              <input type="text" name="" value=""></label>
+              <input type="text" name="amount" value=""></label>
           </div>
         </div>
     </section>
     <div class="nav">
       <button v-show="showprev" v-on:click.prevent="prev()" >Previous</button>
       <button v-show="shownext" v-on:click.prevent="next()">Next</button>
-      <button v-show="showsubmit" v-on:click.prevent="submit()">Submit</button>
+      <button v-show="showsubmit">Submit</button>
+      <!-- <button v-show="showsubmit" v-on:click.prevent="submit()">Submit</button> -->
     </div>
 </form>
 {% endblock %}

@@ -30,10 +30,10 @@ new Vue({
       return this.charmax - this.budget.length;
     },
     next() {
-      if (this.step < 8) {
+      if (this.step < 2) {
         this.step++;
         this.showprev = true;
-      } else if (this.step === 8) {
+      } else if (this.step === 2) {
         this.step++;
         this.shownext = false;
         this.showsubmit = true;
