@@ -48,6 +48,7 @@ class Bank(models.Model):
     bank_code = models.IntegerField(blank=True)
     acc_no = models.IntegerField(blank=True) # The recipient (bank) account number
     created = models.DateTimeField(null=False)
+    recipient_code = models.CharField(max_length=20, blank=False) # required by Paystack
     user = models.ForeignKey(User)
 
 class Token(models.Model):

@@ -172,7 +172,8 @@ def add_recipient(request):
 
         new_recipient = Bank(holder_name=holder_name, bank=bank_name,
             bank_code=bank_code, acc_no=acc_no,
-            created=timezone.now(), user_id=user_id)
+            created=timezone.now(), user_id=user_id, recipient_code=recipient_code)
+            # recipient_code appears in two Bank and Budget tables: refactor
         new_recipient.save()
 
         try:
@@ -205,10 +206,16 @@ def add_recipient(request):
 def link_recipient(request):
     if request.method == "POST":
         recipient_id = request.POST["recipient_id"]
+        # Improve below to get recipient_id from form rather than call
+        # Bank table
+        recipient = Bank.objects.get(id=recipient_id)
+        recipient_code = recipient.recipient_code
+
         try:
             budget_id = request.session["budget_id"]
             budget = Budget.objects.get(id=budget_id)
             budget.recipient_id = recipient_id
+            budget.recipient_code = recipient_code
             budget.save()
             return redirect("sprout:pay")
         except:
@@ -326,6 +333,8 @@ def transfer(request):
         "source": "balance",
         "transfers": transfers,
     }
+    # feedback for Paystack. If one recipient_code is false (or absent),
+    # continue with the others na, rather than null everything
     response = requests.post(url, json=data, headers=headers).json()
 
     # After payment: Update the budget status and next date in db
@@ -337,10 +346,8 @@ def transfer(request):
             # as the order they are here?
             budget.pay_count += 1
             if budget.pay_count < budget.pay_qty:
-                budget.status = 2
-                # Set next/last date
+                budget.budget_status = 2
                 budget.next_date = today + timedelta(days=(budget.interval))
-                # should "next_date" be used instead of "today" as best practice?
                 budget.save()
             elif budget.pay_count == budget.pay_qty:
                 budget.budget_status = 3
