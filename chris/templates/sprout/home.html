@@ -5,13 +5,6 @@
 {% endblock %}
 
 {% block body %}
-<form method="POST">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Link acco</button>
-  <!-- <button type="submit" @click="savebudget()">Link acco</button> -->
-</form>
-<h2>{{ text }}</h2>
 <form class="" id="" action="" method="POST">
   {% csrf_token %}
     <section v-show="step === 6" class="fence">
@@ -45,17 +38,6 @@
         <progress-bar></progress-bar>
       <div id="main">
         <div class="gap">
-        </div>
-        <div class="q-block">
-          <label>How do you want $budget disbursed to you?</label>
-          <label id="radio">In one lump sum
-            <input type="radio" name="" value="">
-            <span class="checkmark"></span>
-          </label>
-          <label id="radio">In multiple disbursements
-            <input type="radio" name="" value="">
-            <span class="checkmark"></span>
-          </label>
         </div>
         <div class="q-block">
           <label for="">How frequently do you want $budget disbursed?
