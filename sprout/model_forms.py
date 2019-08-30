@@ -3,7 +3,7 @@ from chris.models import Budget, Bank
 from django.forms import DateTimeInput # What is this for?
 # from django.utils import timezone
 # import datetime
-from julius import settings
+from blm import settings
 
 class DateInput(forms.DateInput):
     input_type = "date"

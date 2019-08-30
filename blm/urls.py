@@ -1,4 +1,4 @@
-"""julius URL Configuration
+"""blm URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.11/topics/http/urls/
@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from julius import views
+from blm import views
 
 urlpatterns = [
     url(r'^$', views.login_redirect, name='login_redirect'),
